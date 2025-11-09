@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block title %}Analytics - {{ club.club_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .analytics-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .analytics-header {
+        background: linear-gradient(135deg, #2563eb, #1e40af);
+        color: white;
+        padding: 2rem;
+        border-radius: 0.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .analytics-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stats-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-box {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow-md);
+        text-align: center;
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .stat-box h3 {
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-box p {
+        color: var(--gray-600);
+        font-weight: 500;
+        text-transform: uppercase;
+        font-size: 0.875rem;
+    }
+
+    .chart-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow-md);
+        margin-bottom: 2rem;
+    }
+
+    .chart-section h2 {
+        font-size: 1.5rem;
+        color: var(--gray-900);
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid var(--primary-color);
+    }
+
+    .chart-image {
+        width: 100%;
+        height: auto;
+        border-radius: 0.5rem;
+    }
+
+    .no-data {
+        text-align: center;
+        padding: 3rem;
+        color: var(--gray-500);
+    }
+
+    .chart-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+        gap: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .chart-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analytics-container">
+    <!-- Header -->
+    <div class="analytics-header">
+        <h1>📊 Analytics Dashboard</h1>
+        <p>{{ club.club_name }}</p>
+    </div>
+
+    <!-- Statistics Overview -->
+    <div class="stats-overview">
+        <div class="stat-box">
+            <h3>{{ total_events }}</h3>
+            <p>Total Events</p>
+        </div>
+
+        <div class="stat-box" style="border-left-color: #10b981;">
+            <h3>{{ completed_events }}</h3>
+            <p>Completed Events</p>
+        </div>
+
+        <div class="stat-box" style="border-left-color: #f59e0b;">
+            <h3>{{ total_registrations }}</h3>
+            <p>Total Registrations</p>
+        </div>
+
+        <div class="stat-box" style="border-left-color: #8b5cf6;">
+            <h3>{{ avg_attendance_rate|floatformat:1 }}%</h3>
+            <p>Avg Attendance Rate</p>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    {% if charts.events_timeline %}
+    <div class="chart-section">
+        <h2>📈 Events Timeline</h2>
+        <img src="data:image/png;base64,{{ charts.events_timeline }}" class="chart-image" alt="Events Timeline">
+    </div>
+    {% endif %}
+
+    <div class="chart-grid">
+        {% if charts.event_status %}
+        <div class="chart-section">
+            <h2>📊 Event Status Distribution</h2>
+            <img src="data:image/png;base64,{{ charts.event_status }}" class="chart-image" alt="Event Status">
+        </div>
+        {% endif %}
+
+        {% if charts.monthly_events %}
+        <div class="chart-section">
+            <h2>📅 Monthly Event Count</h2>
+            <img src="data:image/png;base64,{{ charts.monthly_events }}" class="chart-image" alt="Monthly Events">
+        </div>
+        {% endif %}
+    </div>
+
+    {% if charts.attendance_trend %}
+    <div class="chart-section">
+        <h2>📊 Attendance Rate Trend</h2>
+        <img src="data:image/png;base64,{{ charts.attendance_trend }}" class="chart-image" alt="Attendance Trend">
+    </div>
+    {% endif %}
+
+    <div class="chart-grid">
+        {% if charts.department_participation %}
+        <div class="chart-section">
+            <h2>🎓 Department-wise Participation</h2>
+            <img src="data:image/png;base64,{{ charts.department_participation }}" class="chart-image" alt="Department Participation">
+        </div>
+        {% endif %}
+
+        {% if charts.activity_points %}
+        <div class="chart-section">
+            <h2>⭐ Top Students by Activity Points</h2>
+            <img src="data:image/png;base64,{{ charts.activity_points }}" class="chart-image" alt="Activity Points">
+        </div>
+        {% endif %}
+    </div>
+
+    {% if not charts.events_timeline and not charts.event_status and not charts.attendance_trend %}
+    <div class="chart-section">
+        <div class="no-data">
+            <h2>No Analytics Data Available</h2>
+            <p>Complete some events to see analytics and charts</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Back Button -->
+    <div style="margin-top: 2rem;">
+        <a href="{% url 'club_dashboard' %}" class="btn btn-secondary">
+            ← Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

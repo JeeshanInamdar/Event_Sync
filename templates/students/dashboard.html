@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - {{ student.get_full_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .dashboard-header {
+        margin-bottom: 2rem;
+    }
+
+    .dashboard-header h1 {
+        font-size: 2rem;
+        color: var(--gray-900);
+        margin-bottom: 0.5rem;
+    }
+
+    .dashboard-header p {
+        color: var(--gray-600);
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background-color: var(--white);
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow-md);
+    }
+
+    .stat-card h3 {
+        font-size: 0.875rem;
+        color: var(--gray-600);
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .stat-card p {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+
+    .info-card {
+        background-color: var(--white);
+        padding: 2rem;
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow-md);
+    }
+
+    .info-card h2 {
+        font-size: 1.5rem;
+        color: var(--gray-900);
+        margin-bottom: 1.5rem;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: var(--gray-700);
+    }
+
+    .info-value {
+        color: var(--gray-600);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Welcome, {{ student.first_name }}!</h1>
+        <p>USN: {{ student.usn }}</p>
+        <div style="margin-top: 1rem;">
+            <a href="{% url 'student_profile' %}" class="btn btn-primary btn-small">
+                ✏️ Edit Profile
+            </a>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Total Activity Points</h3>
+            <p>{{ student.total_activity_points }}</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Active Registrations</h3>
+            <p>{{ student.get_active_registrations_count }}</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Registration Limit</h3>
+            <p>{{ student.max_event_registrations }}</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Semester</h3>
+            <p>{{ student.semester }}</p>
+        </div>
+    </div>
+
+    <div class="info-card">
+        <h2>Profile Information</h2>
+
+        <div class="info-row">
+            <span class="info-label">Full Name:</span>
+            <span class="info-value">{{ student.get_full_name }}</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Department:</span>
+            <span class="info-value">{{ student.department }}</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Email:</span>
+            <span class="info-value">{{ student.email }}</span>
+        </div>
+
+        {% if student.phone %}
+        <div class="info-row">
+            <span class="info-label">Phone:</span>
+            <span class="info-value">{{ student.phone }}</span>
+        </div>
+        {% endif %}
+
+        {% if student.date_of_birth %}
+        <div class="info-row">
+            <span class="info-label">Date of Birth:</span>
+            <span class="info-value">{{ student.date_of_birth|date:"F d, Y" }}</span>
+        </div>
+        {% endif %}
+
+        {% if student.gender %}
+        <div class="info-row">
+            <span class="info-label">Gender:</span>
+            <span class="info-value">{{ student.gender }}</span>
+        </div>
+        {% endif %}
+
+        <div class="info-row">
+            <span class="info-label">Account Status:</span>
+            <span class="info-value">{% if student.is_active %}Active{% else %}Inactive{% endif %}</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Member Since:</span>
+            <span class="info-value">{{ student.created_at|date:"F d, Y" }}</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Event - {{ event.event_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .edit-event-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 0 2rem;
+    }
+
+    .form-card {
+        background-color: var(--white);
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow-lg);
+        padding: 2rem;
+    }
+
+    .form-card h1 {
+        font-size: 1.75rem;
+        color: var(--gray-900);
+        margin-bottom: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="edit-event-container">
+    <div class="form-card">
+        <h1>Edit Event</h1>
+        <p style="color: var(--gray-600); margin-bottom: 2rem;">{{ event.event_name }}</p>
+
+        <form method="POST" action="{% url 'edit_event' event.event_id %}" id="editEventForm">
+            {% csrf_token %}
+
+            <!-- Event Name -->
+            <div class="form-group">
+                <label for="event_name" class="form-label">
+                    Event Name <span class="required">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="event_name" 
+                    name="event_name" 
+                    class="form-input" 
+                    value="{{ event.event_name }}"
+                    required
+                >
+            </div>
+
+            <!-- Event Description -->
+            <div class="form-group">
+                <label for="event_description" class="form-label">
+                    Event Description
+                </label>
+                <textarea 
+                    id="event_description" 
+                    name="event_description" 
+                    class="form-textarea" 
+                    rows="4"
+                >{{ event.event_description }}</textarea>
+            </div>
+
+            <!-- Event Type -->
+            <div class="form-group">
+                <label for="event_type" class="form-label">
+                    Event Type <span class="required">*</span>
+                </label>
+                <select id="event_type" name="event_type" class="form-select" required onchange="toggleActivityPoints()">
+                    <option value="NORMAL" {% if event.event_type == 'NORMAL' %}selected{% endif %}>Normal Event</option>
+                    <option value="ACTIVITY_POINTS" {% if event.event_type == 'ACTIVITY_POINTS' %}selected{% endif %}>Event with Activity Points</option>
+                </select>
+            </div>
+
+            <!-- Activity Points -->
+            <div class="form-group" id="activity_points_group" style="display: {% if event.event_type == 'ACTIVITY_POINTS' %}block{% else %}none{% endif %};">
+                <label for="activity_points" class="form-label">
+                    Activity Points <span class="required">*</span>
+                </label>
+                <input 
+                    type="number" 
+                    id="activity_points" 
+                    name="activity_points" 
+                    class="form-input" 
+                    value="{{ event.activity_points }}"
+                    min="1"
+                    max="100"
+                >
+                <span class="form-help">Points awarded to students who attend (1-100)</span>
+            </div>
+
+            <!-- Date and Time -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="event_date" class="form-label">
+                        Event Date <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="date" 
+                        id="event_date" 
+                        name="event_date" 
+                        class="form-input" 
+                        value="{{ event.event_date|date:'Y-m-d' }}"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="start_time" class="form-label">
+                        Start Time <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="time" 
+                        id="start_time" 
+                        name="start_time" 
+                        class="form-input" 
+                        value="{{ event.start_time|time:'H:i' }}"
+                        required
+                    >
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="end_time" class="form-label">
+                        End Time
+                    </label>
+                    <input 
+                        type="time" 
+                        id="end_time" 
+                        name="end_time" 
+                        class="form-input"
+                        value="{% if event.end_time %}{{ event.end_time|time:'H:i' }}{% endif %}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="max_participants" class="form-label">
+                        Max Participants
+                    </label>
+                    <input 
+                        type="number" 
+                        id="max_participants" 
+                        name="max_participants" 
+                        class="form-input" 
+                        value="{{ event.max_participants }}"
+                        min="1"
+                    >
+                </div>
+            </div>
+
+            <!-- Venue -->
+            <div class="form-group">
+                <label for="venue" class="form-label">
+                    Venue
+                </label>
+                <input 
+                    type="text" 
+                    id="venue" 
+                    name="venue" 
+                    class="form-input" 
+                    value="{{ event.venue }}"
+                >
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="form-row">
+                <a href="{% url 'club_dashboard' %}" class="btn btn-secondary btn-block">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-primary btn-block">
+                    Update Event
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleActivityPoints() {
+        const eventType = document.getElementById('event_type').value;
+        const activityPointsGroup = document.getElementById('activity_points_group');
+        const activityPointsInput = document.getElementById('activity_points');
+        
+        if (eventType === 'ACTIVITY_POINTS') {
+            activityPointsGroup.style.display = 'block';
+            activityPointsInput.required = true;
+        } else {
+            activityPointsGroup.style.display = 'none';
+            activityPointsInput.required = false;
+            activityPointsInput.value = '';
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,307 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Registration - Event Assistant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-container {
+        max-width: 700px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Student Registration</h1>
+            <p>Create your account to register for events</p>
+        </div>
+
+        <form method="POST" action="{% url 'student_register' %}" id="registerForm">
+            {% csrf_token %}
+            
+            <!-- USN -->
+            <div class="form-group">
+                <label for="usn" class="form-label">
+                    USN <span class="required">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="usn" 
+                    name="usn" 
+                    class="form-input" 
+                    placeholder="e.g., 1AB20CS001"
+                    required
+                    autofocus
+                >
+                <span class="form-help">University Seat Number (must contain both letters and numbers)</span>
+                <span class="form-error" id="usn-error"></span>
+            </div>
+
+            <!-- Name Fields -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="first_name" class="form-label">
+                        First Name <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="first_name" 
+                        name="first_name" 
+                        class="form-input" 
+                        placeholder="John"
+                        required
+                    >
+                    <span class="form-error" id="first_name-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="last_name" class="form-label">
+                        Last Name <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="last_name" 
+                        name="last_name" 
+                        class="form-input" 
+                        placeholder="Doe"
+                        required
+                    >
+                    <span class="form-error" id="last_name-error"></span>
+                </div>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+                <label for="email" class="form-label">
+                    Email <span class="required">*</span>
+                </label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    class="form-input" 
+                    placeholder="john.doe@student.edu"
+                    required
+                >
+                <span class="form-error" id="email-error"></span>
+            </div>
+
+            <!-- Phone -->
+            <div class="form-group">
+                <label for="phone" class="form-label">
+                    Phone Number
+                </label>
+                <input 
+                    type="tel" 
+                    id="phone" 
+                    name="phone" 
+                    class="form-input" 
+                    placeholder="9876543210"
+                >
+                <span class="form-error" id="phone-error"></span>
+            </div>
+
+            <!-- Department and Semester -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="department" class="form-label">
+                        Department <span class="required">*</span>
+                    </label>
+                    <select id="department" name="department" class="form-select" required>
+                        <option value="">Select Department</option>
+                        <option value="Computer Science">Computer Science</option>
+                        <option value="Information Science">Information Science</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Mechanical">Mechanical</option>
+                        <option value="Civil">Civil</option>
+                        <option value="Electrical">Electrical</option>
+                    </select>
+                    <span class="form-error" id="department-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="semester" class="form-label">
+                        Semester <span class="required">*</span>
+                    </label>
+                    <select id="semester" name="semester" class="form-select" required>
+                        <option value="">Select Semester</option>
+                        <option value="1">1st Semester</option>
+                        <option value="2">2nd Semester</option>
+                        <option value="3">3rd Semester</option>
+                        <option value="4">4th Semester</option>
+                        <option value="5">5th Semester</option>
+                        <option value="6">6th Semester</option>
+                        <option value="7">7th Semester</option>
+                        <option value="8">8th Semester</option>
+                    </select>
+                    <span class="form-error" id="semester-error"></span>
+                </div>
+            </div>
+
+            <!-- Gender and Date of Birth -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="gender" class="form-label">
+                        Gender
+                    </label>
+                    <select id="gender" name="gender" class="form-select">
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="date_of_birth" class="form-label">
+                        Date of Birth
+                    </label>
+                    <input 
+                        type="date" 
+                        id="date_of_birth" 
+                        name="date_of_birth" 
+                        class="form-input"
+                    >
+                </div>
+            </div>
+
+            <!-- Address -->
+            <div class="form-group">
+                <label for="address" class="form-label">
+                    Address
+                </label>
+                <textarea 
+                    id="address" 
+                    name="address" 
+                    class="form-textarea" 
+                    placeholder="Enter your address"
+                    rows="3"
+                ></textarea>
+            </div>
+
+            <!-- Password Fields -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="password" class="form-label">
+                        Password <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="form-input" 
+                        placeholder="Minimum 8 characters"
+                        required
+                    >
+                    <span class="form-error" id="password-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm_password" class="form-label">
+                        Confirm Password <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="password" 
+                        id="confirm_password" 
+                        name="confirm_password" 
+                        class="form-input" 
+                        placeholder="Re-enter password"
+                        required
+                    >
+                    <span class="form-error" id="confirm_password-error"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary btn-block">
+                    Register
+                </button>
+            </div>
+        </form>
+
+        <div class="auth-footer">
+            <p>Already have an account? <a href="{% url 'student_login' %}">Login here</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        // Clear all previous errors
+        const errorElements = document.querySelectorAll('.form-error');
+        errorElements.forEach(el => el.textContent = '');
+        
+        const inputs = document.querySelectorAll('.form-input, .form-select');
+        inputs.forEach(input => input.classList.remove('error'));
+        
+        let isValid = true;
+        
+        // Validate USN
+        const usn = document.getElementById('usn').value.trim();
+        const usnRegex = /^(?=.*[A-Za-z])(?=.*[0-9])[A-Za-z0-9]+$/;
+        if (!usnRegex.test(usn)) {
+            document.getElementById('usn-error').textContent = 'USN must contain both letters and numbers';
+            document.getElementById('usn').classList.add('error');
+            isValid = false;
+        }
+        
+        // Validate First Name
+        const firstName = document.getElementById('first_name').value.trim();
+        if (firstName.length < 2) {
+            document.getElementById('first_name-error').textContent = 'First name must be at least 2 characters';
+            document.getElementById('first_name').classList.add('error');
+            isValid = false;
+        }
+        
+        // Validate Last Name
+        const lastName = document.getElementById('last_name').value.trim();
+        if (lastName.length < 2) {
+            document.getElementById('last_name-error').textContent = 'Last name must be at least 2 characters';
+            document.getElementById('last_name').classList.add('error');
+            isValid = false;
+        }
+        
+        // Validate Email
+        const email = document.getElementById('email').value.trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            document.getElementById('email-error').textContent = 'Please enter a valid email address';
+            document.getElementById('email').classList.add('error');
+            isValid = false;
+        }
+        
+        // Validate Phone (if provided)
+        const phone = document.getElementById('phone').value.trim();
+        if (phone && !/^\d{10}$/.test(phone)) {
+            document.getElementById('phone-error').textContent = 'Phone number must be 10 digits';
+            document.getElementById('phone').classList.add('error');
+            isValid = false;
+        }
+        
+        // Validate Password
+        const password = document.getElementById('password').value;
+        if (password.length < 8) {
+            document.getElementById('password-error').textContent = 'Password must be at least 8 characters';
+            document.getElementById('password').classList.add('error');
+            isValid = false;
+        }
+        
+        // Validate Confirm Password
+        const confirmPassword = document.getElementById('confirm_password').value;
+        if (password !== confirmPassword) {
+            document.getElementById('confirm_password-error').textContent = 'Passwords do not match';
+            document.getElementById('confirm_password').classList.add('error');
+            isValid = false;
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    });
+</script>
+{% endblock %}

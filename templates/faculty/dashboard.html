@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+
+{% block title %}Faculty Dashboard - {{ faculty.get_full_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .faculty-dashboard {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .dashboard-header {
+        margin-bottom: 2rem;
+    }
+
+    .dashboard-header h1 {
+        font-size: 2rem;
+        color: var(--gray-900);
+        margin-bottom: 0.5rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: var(--white);
+        padding: 2rem;
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .stat-card h3 {
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+        opacity: 0.9;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .stat-card p {
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+
+    .section {
+        background-color: var(--white);
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow-md);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--gray-200);
+    }
+
+    .section-header h2 {
+        font-size: 1.5rem;
+        color: var(--gray-900);
+    }
+
+    .clubs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .club-card {
+        border: 2px solid var(--gray-200);
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .club-card:hover {
+        border-color: var(--primary-color);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .club-card h3 {
+        font-size: 1.25rem;
+        color: var(--gray-900);
+        margin-bottom: 1rem;
+    }
+
+    .club-stats {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 1rem;
+        color: var(--gray-600);
+        font-size: 0.875rem;
+    }
+
+    .club-head {
+        background-color: var(--gray-50);
+        padding: 0.75rem;
+        border-radius: 0.25rem;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+    }
+
+    .event-list {
+        list-style: none;
+    }
+
+    .event-item {
+        padding: 1rem;
+        border-bottom: 1px solid var(--gray-200);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .event-item:last-child {
+        border-bottom: none;
+    }
+
+    .event-info h4 {
+        font-size: 1rem;
+        color: var(--gray-900);
+        margin-bottom: 0.25rem;
+    }
+
+    .event-meta {
+        font-size: 0.875rem;
+        color: var(--gray-600);
+    }
+
+    .event-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
+
+    @media (max-width: 768px) {
+        .clubs-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="faculty-dashboard">
+    <div class="dashboard-header">
+        <h1>Welcome, {{ faculty.first_name }}!</h1>
+        <p>Faculty Code: {{ faculty.faculty_code }} | Department: {{ faculty.department }}</p>
+        <div style="margin-top: 1rem; display: flex; gap: 1rem;">
+            <a href="{% url 'faculty_profile' %}" class="btn btn-secondary">
+                ✏️ Edit Profile
+            </a>
+            <a href="{% url 'faculty_analytics' %}" class="btn btn-success">
+                📊 View Analytics
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Total Clubs</h3>
+            <p>{{ total_clubs }}</p>
+        </div>
+
+        <div class="stat-card" style="background: linear-gradient(135deg, #10b981, #059669);">
+            <h3>Total Members</h3>
+            <p>{{ total_members }}</p>
+        </div>
+
+        <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+            <h3>Upcoming Events</h3>
+            <p>{{ upcoming_events.count }}</p>
+        </div>
+    </div>
+
+    <!-- Managed Clubs -->
+    <div class="section">
+        <div class="section-header">
+            <h2>Your Clubs</h2>
+        </div>
+
+        {% if clubs %}
+        <div class="clubs-grid">
+            {% for club in clubs %}
+            <div class="club-card">
+                <h3>{{ club.club_name }}</h3>
+                
+                <div class="club-stats">
+                    <span>👥 {{ club.get_members_count }} Members</span>
+                    <span>📅 {{ club.events.count }} Events</span>
+                </div>
+
+                {% if club.club_head %}
+                <div class="club-head">
+                    <strong>Club Head:</strong> {{ club.club_head.get_full_name }} ({{ club.club_head.usn }})
+                </div>
+                {% else %}
+                <div class="club-head" style="background-color: #fee2e2; color: #991b1b;">
+                    <strong>⚠️ No Club Head Appointed</strong>
+                </div>
+                {% endif %}
+
+                <a href="{% url 'club_detail' club.club_id %}" class="btn btn-primary btn-block">
+                    Manage Club
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="text-align: center; color: var(--gray-500); padding: 2rem;">
+            You are not managing any clubs yet.
+        </p>
+        {% endif %}
+    </div>
+
+    <!-- Upcoming Events -->
+    {% if upcoming_events %}
+    <div class="section">
+        <div class="section-header">
+            <h2>Upcoming Events</h2>
+        </div>
+
+        <ul class="event-list">
+            {% for event in upcoming_events %}
+            <li class="event-item">
+                <div class="event-info">
+                    <h4>{{ event.event_name }}</h4>
+                    <div class="event-meta">
+                        {{ event.club.club_name }} • 
+                        {{ event.event_date|date:"F d, Y" }} • 
+                        {{ event.start_time|time:"g:i A" }}
+                        {% if event.has_activity_points %}
+                        • ⭐ {{ event.activity_points }} points
+                        {% endif %}
+                    </div>
+                </div>
+                <span class="event-badge">{{ event.get_registered_count }} registered</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

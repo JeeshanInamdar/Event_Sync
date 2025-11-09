@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+
+{% block title %}My Registrations - Event Assistant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .registrations-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        border-bottom: 2px solid var(--gray-200);
+    }
+
+    .tab {
+        padding: 0.75rem 1.5rem;
+        background: none;
+        border: none;
+        border-bottom: 3px solid transparent;
+        cursor: pointer;
+        font-weight: 500;
+        color: var(--gray-600);
+        transition: all 0.3s ease;
+    }
+
+    .tab:hover {
+        color: var(--primary-color);
+    }
+
+    .tab.active {
+        color: var(--primary-color);
+        border-bottom-color: var(--primary-color);
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .registration-card {
+        background-color: var(--white);
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow-md);
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 1.5rem;
+        align-items: center;
+    }
+
+    .registration-info h3 {
+        font-size: 1.25rem;
+        color: var(--gray-900);
+        margin-bottom: 0.5rem;
+    }
+
+    .registration-meta {
+        display: flex;
+        gap: 1.5rem;
+        color: var(--gray-600);
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .status-scheduled {
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
+
+    .status-completed {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-cancelled {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+
+    @media (max-width: 768px) {
+        .registration-card {
+            grid-template-columns: 1fr;
+        }
+
+        .registration-meta {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="registrations-container">
+    <div class="page-header">
+        <h1>My Registrations</h1>
+        <p>View and manage your event registrations</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab active" onclick="showTab('upcoming')">
+            Upcoming ({{ upcoming_registrations.count }})
+        </button>
+        <button class="tab" onclick="showTab('past')">
+            Past ({{ past_registrations.count }})
+        </button>
+        <button class="tab" onclick="showTab('cancelled')">
+            Cancelled ({{ cancelled_registrations.count }})
+        </button>
+    </div>
+
+    <!-- Upcoming Tab -->
+    <div id="upcoming" class="tab-content active">
+        {% if upcoming_registrations %}
+            {% for registration in upcoming_registrations %}
+            <div class="registration-card">
+                <div class="registration-info">
+                    <h3>{{ registration.event.event_name }}</h3>
+                    <div class="registration-meta">
+                        <span>📅 {{ registration.event.event_date|date:"F d, Y" }}</span>
+                        <span>🕐 {{ registration.event.start_time|time:"g:i A" }}</span>
+                        <span>🏢 {{ registration.event.club.club_name }}</span>
+                        {% if registration.event.has_activity_points %}
+                        <span>⭐ {{ registration.event.activity_points }} points</span>
+                        {% endif %}
+                    </div>
+                    <span class="status-badge status-scheduled">Registered</span>
+                </div>
+                <div>
+                    <a href="{% url 'event_detail' registration.event.event_id %}" class="btn btn-primary btn-small">
+                        View Details
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="text-align: center; color: var(--gray-500); padding: 2rem;">
+                No upcoming registrations
+            </p>
+        {% endif %}
+    </div>
+
+    <!-- Past Tab -->
+    <div id="past" class="tab-content">
+        {% if past_registrations %}
+            {% for registration in past_registrations %}
+            <div class="registration-card">
+                <div class="registration-info">
+                    <h3>{{ registration.event.event_name }}</h3>
+                    <div class="registration-meta">
+                        <span>📅 {{ registration.event.event_date|date:"F d, Y" }}</span>
+                        <span>🕐 {{ registration.event.start_time|time:"g:i A" }}</span>
+                        <span>🏢 {{ registration.event.club.club_name }}</span>
+                        {% if registration.event.has_activity_points %}
+                        <span>⭐ {{ registration.event.activity_points }} points</span>
+                        {% endif %}
+                    </div>
+                    <span class="status-badge status-completed">Completed</span>
+                </div>
+                <div>
+                    <a href="{% url 'event_detail' registration.event.event_id %}" class="btn btn-secondary btn-small">
+                        View Details
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="text-align: center; color: var(--gray-500); padding: 2rem;">
+                No past registrations
+            </p>
+        {% endif %}
+    </div>
+
+    <!-- Cancelled Tab -->
+    <div id="cancelled" class="tab-content">
+        {% if cancelled_registrations %}
+            {% for registration in cancelled_registrations %}
+            <div class="registration-card">
+                <div class="registration-info">
+                    <h3>{{ registration.event.event_name }}</h3>
+                    <div class="registration-meta">
+                        <span>📅 {{ registration.event.event_date|date:"F d, Y" }}</span>
+                        <span>🏢 {{ registration.event.club.club_name }}</span>
+                        <span>❌ Cancelled on {{ registration.cancelled_at|date:"F d, Y" }}</span>
+                    </div>
+                    {% if registration.cancellation_reason %}
+                    <p style="color: var(--gray-600); font-size: 0.875rem; margin-top: 0.5rem;">
+                        Reason: {{ registration.cancellation_reason }}
+                    </p>
+                    {% endif %}
+                    <span class="status-badge status-cancelled">Cancelled</span>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="text-align: center; color: var(--gray-500); padding: 2rem;">
+                No cancelled registrations
+            </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function showTab(tabName) {
+        // Hide all tabs
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabs.forEach(tab => tab.classList.remove('active'));
+        tabContents.forEach(content => content.classList.remove('active'));
+        
+        // Show selected tab
+        event.target.classList.add('active');
+        document.getElementById(tabName).classList.add('active');
+    }
+</script>
+{% endblock %}

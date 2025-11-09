@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+
+{% block title %}Analytics - Faculty Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .analytics-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .analytics-header {
+        background: linear-gradient(135deg, #2563eb, #1e40af);
+        color: white;
+        padding: 2rem;
+        border-radius: 0.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .club-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow-lg);
+        margin-bottom: 3rem;
+    }
+
+    .club-section h2 {
+        font-size: 1.75rem;
+        color: var(--gray-900);
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 3px solid var(--primary-color);
+    }
+
+    .chart-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .chart-box {
+        background: var(--gray-50);
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        border: 1px solid var(--gray-200);
+    }
+
+    .chart-box h3 {
+        font-size: 1.25rem;
+        color: var(--gray-800);
+        margin-bottom: 1rem;
+    }
+
+    .chart-image {
+        width: 100%;
+        height: auto;
+        border-radius: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .chart-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analytics-container">
+    <!-- Header -->
+    <div class="analytics-header">
+        <h1>📊 Faculty Analytics Dashboard</h1>
+        <p>Overview of all managed clubs</p>
+    </div>
+
+    <!-- Overall Stats -->
+    <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <div class="stat-card">
+            <h3>Total Clubs</h3>
+            <p>{{ clubs.count }}</p>
+        </div>
+
+        <div class="stat-card" style="background: linear-gradient(135deg, #10b981, #059669);">
+            <h3>Total Events</h3>
+            <p>{{ total_events }}</p>
+        </div>
+
+        <div class="stat-card" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+            <h3>Completed Events</h3>
+            <p>{{ completed_events }}</p>
+        </div>
+    </div>
+
+    <!-- Club-wise Analytics -->
+    {% for item in club_analytics %}
+    <div class="club-section">
+        <h2>{{ item.club.club_name }}</h2>
+
+        <div class="chart-grid">
+            {% if item.charts.events_timeline %}
+            <div class="chart-box">
+                <h3>Events Timeline</h3>
+                <img src="data:image/png;base64,{{ item.charts.events_timeline }}" class="chart-image">
+            </div>
+            {% endif %}
+
+            {% if item.charts.event_status %}
+            <div class="chart-box">
+                <h3>Event Status</h3>
+                <img src="data:image/png;base64,{{ item.charts.event_status }}" class="chart-image">
+            </div>
+            {% endif %}
+
+            {% if item.charts.attendance_trend %}
+            <div class="chart-box">
+                <h3>Attendance Trend</h3>
+                <img src="data:image/png;base64,{{ item.charts.attendance_trend }}" class="chart-image">
+            </div>
+            {% endif %}
+
+            {% if item.charts.department_participation %}
+            <div class="chart-box">
+                <h3>Department Participation</h3>
+                <img src="data:image/png;base64,{{ item.charts.department_participation }}" class="chart-image">
+            </div>
+            {% endif %}
+
+            {% if item.charts.monthly_events %}
+            <div class="chart-box">
+                <h3>Monthly Events</h3>
+                <img src="data:image/png;base64,{{ item.charts.monthly_events }}" class="chart-image">
+            </div>
+            {% endif %}
+
+            {% if item.charts.activity_points %}
+            <div class="chart-box">
+                <h3>Top Students (Activity Points)</h3>
+                <img src="data:image/png;base64,{{ item.charts.activity_points }}" class="chart-image">
+            </div>
+            {% endif %}
+        </div>
+
+        {% if not item.charts.events_timeline and not item.charts.event_status %}
+        <p style="text-align: center; padding: 2rem; color: var(--gray-500);">
+            No analytics data available for this club yet.
+        </p>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <!-- Back Button -->
+    <div style="margin-top: 2rem;">
+        <a href="{% url 'faculty_dashboard' %}" class="btn btn-secondary">
+            ← Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

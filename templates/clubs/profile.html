@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile - {{ student.get_full_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 0 2rem;
+    }
+
+    .profile-card {
+        background-color: var(--white);
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow-lg);
+        padding: 2rem;
+    }
+
+    .profile-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--gray-200);
+    }
+
+    .profile-header h1 {
+        font-size: 1.75rem;
+        color: var(--gray-900);
+        margin: 0;
+    }
+
+    .club-info-badge {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+        display: inline-block;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-card">
+        <div class="profile-header">
+            <div>
+                <h1>Edit Profile</h1>
+                <p style="color: var(--gray-600); margin: 0;">{{ student.usn }}</p>
+                <span class="club-info-badge">{{ member.club.club_name }} - {{ member.role.role_name }}</span>
+            </div>
+            <div>
+                <a href="{% url 'club_member_change_password' %}" class="btn btn-secondary btn-small">
+                    🔒 Change Club Password
+                </a>
+            </div>
+        </div>
+
+        <form method="POST" action="{% url 'club_member_profile' %}">
+            {% csrf_token %}
+
+            <!-- Name Fields -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="first_name" class="form-label">
+                        First Name <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="first_name" 
+                        name="first_name" 
+                        class="form-input" 
+                        value="{{ student.first_name }}"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="last_name" class="form-label">
+                        Last Name <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="last_name" 
+                        name="last_name" 
+                        class="form-input" 
+                        value="{{ student.last_name }}"
+                        required
+                    >
+                </div>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+                <label for="email" class="form-label">
+                    Email <span class="required">*</span>
+                </label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    class="form-input" 
+                    value="{{ student.email }}"
+                    required
+                >
+            </div>
+
+            <!-- Phone -->
+            <div class="form-group">
+                <label for="phone" class="form-label">
+                    Phone Number
+                </label>
+                <input 
+                    type="tel" 
+                    id="phone" 
+                    name="phone" 
+                    class="form-input" 
+                    value="{{ student.phone|default:'' }}"
+                >
+            </div>
+
+            <!-- Department -->
+            <div class="form-group">
+                <label for="department" class="form-label">
+                    Department <span class="required">*</span>
+                </label>
+                <select id="department" name="department" class="form-select" required>
+                    <option value="">Select Department</option>
+                    <option value="Computer Science" {% if student.department == "Computer Science" %}selected{% endif %}>Computer Science</option>
+                    <option value="Information Science" {% if student.department == "Information Science" %}selected{% endif %}>Information Science</option>
+                    <option value="Electronics" {% if student.department == "Electronics" %}selected{% endif %}>Electronics</option>
+                    <option value="Mechanical" {% if student.department == "Mechanical" %}selected{% endif %}>Mechanical</option>
+                    <option value="Civil" {% if student.department == "Civil" %}selected{% endif %}>Civil</option>
+                    <option value="Electrical" {% if student.department == "Electrical" %}selected{% endif %}>Electrical</option>
+                </select>
+            </div>
+
+            <!-- Buttons -->
+            <div class="form-row">
+                <a href="{% url 'club_dashboard' %}" class="btn btn-secondary btn-block">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-primary btn-block">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+
+        <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--gray-200);">
+            <p style="font-size: 0.875rem; color: var(--gray-600);">
+                <strong>Note:</strong> This updates your personal student information. Your club login ID is: <code style="background-color: var(--gray-100); padding: 0.25rem 0.5rem; border-radius: 0.25rem;">{{ member.club_login_id }}</code>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

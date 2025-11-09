@@ -1,0 +1,311 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ event.event_name }} - Event Assistant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .event-detail-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .event-detail-card {
+        background-color: var(--white);
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+    }
+
+    .event-detail-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: var(--white);
+        padding: 2rem;
+    }
+
+    .event-type-badge-large {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .event-detail-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .event-club-name {
+        font-size: 1.125rem;
+        opacity: 0.9;
+    }
+
+    .event-detail-body {
+        padding: 2rem;
+    }
+
+    .detail-section {
+        margin-bottom: 2rem;
+    }
+
+    .detail-section h2 {
+        font-size: 1.25rem;
+        color: var(--gray-900);
+        margin-bottom: 1rem;
+        border-bottom: 2px solid var(--primary-color);
+        padding-bottom: 0.5rem;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .detail-item {
+        display: flex;
+        align-items: start;
+        gap: 1rem;
+    }
+
+    .detail-icon {
+        font-size: 1.5rem;
+        width: 2rem;
+        flex-shrink: 0;
+    }
+
+    .detail-content {
+        flex: 1;
+    }
+
+    .detail-label {
+        font-size: 0.875rem;
+        color: var(--gray-600);
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 0.25rem;
+    }
+
+    .detail-value {
+        color: var(--gray-900);
+        font-size: 1.125rem;
+    }
+
+    .activity-points-box {
+        background-color: #fef3c7;
+        border: 2px solid #fbbf24;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .activity-points-box h3 {
+        color: #92400e;
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .activity-points-box p {
+        color: #92400e;
+        font-size: 0.875rem;
+    }
+
+    .event-description {
+        color: var(--gray-700);
+        line-height: 1.8;
+        font-size: 1rem;
+    }
+
+    .registration-box {
+        background-color: var(--gray-50);
+        padding: 2rem;
+        border-top: 1px solid var(--gray-200);
+    }
+
+    .registration-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .registration-count {
+        font-size: 1rem;
+        color: var(--gray-700);
+    }
+
+    .registration-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .already-registered {
+        background-color: #d1fae5;
+        border: 2px solid var(--success-color);
+        color: #065f46;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .registration-info {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: stretch;
+        }
+
+        .registration-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="event-detail-container">
+    <div class="event-detail-card">
+        <!-- Header -->
+        <div class="event-detail-header">
+            <span class="event-type-badge-large">
+                {% if event.event_type == 'ACTIVITY_POINTS' %}
+                    ⭐ Activity Points Event
+                {% else %}
+                    📋 Normal Event
+                {% endif %}
+            </span>
+            <h1>{{ event.event_name }}</h1>
+            <p class="event-club-name">Organized by {{ event.club.club_name }}</p>
+        </div>
+
+        <!-- Body -->
+        <div class="event-detail-body">
+            <!-- Event Details -->
+            <div class="detail-section">
+                <h2>Event Details</h2>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-icon">📅</div>
+                        <div class="detail-content">
+                            <div class="detail-label">Date</div>
+                            <div class="detail-value">{{ event.event_date|date:"F d, Y (l)" }}</div>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-icon">🕐</div>
+                        <div class="detail-content">
+                            <div class="detail-label">Time</div>
+                            <div class="detail-value">
+                                {{ event.start_time|time:"g:i A" }}
+                                {% if event.end_time %}
+                                    - {{ event.end_time|time:"g:i A" }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if event.venue %}
+                    <div class="detail-item">
+                        <div class="detail-icon">📍</div>
+                        <div class="detail-content">
+                            <div class="detail-label">Venue</div>
+                            <div class="detail-value">{{ event.venue }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="detail-item">
+                        <div class="detail-icon">👥</div>
+                        <div class="detail-content">
+                            <div class="detail-label">Max Participants</div>
+                            <div class="detail-value">
+                                {% if event.max_participants %}
+                                    {{ event.max_participants }}
+                                {% else %}
+                                    Unlimited
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Points -->
+            {% if event.has_activity_points %}
+            <div class="detail-section">
+                <div class="activity-points-box">
+                    <h3>⭐ {{ event.activity_points }} Activity Points</h3>
+                    <p>Earn activity points by attending this event!</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Description -->
+            {% if event.event_description %}
+            <div class="detail-section">
+                <h2>Description</h2>
+                <p class="event-description">{{ event.event_description }}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Registration Box -->
+        <div class="registration-box">
+            <div class="registration-info">
+                <div class="registration-count">
+                    <strong>{{ registered_count }}</strong> 
+                    {% if event.max_participants %}
+                        of {{ event.max_participants }}
+                    {% endif %}
+                    students registered
+                </div>
+            </div>
+
+            {% if is_registered %}
+                <div class="already-registered">
+                    ✓ You are registered for this event
+                    <p style="margin-top: 0.5rem; font-size: 0.875rem; font-weight: normal;">
+                        Registered on {{ registration.registration_date|date:"F d, Y" }}
+                    </p>
+                </div>
+                
+                {% if event.event_status == 'SCHEDULED' %}
+                <form method="POST" action="{% url 'event_cancel_registration' event.event_id %}" style="margin-top: 1rem;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-block" onclick="return confirm('Are you sure you want to cancel your registration?')">
+                        Cancel Registration
+                    </button>
+                </form>
+                {% endif %}
+            {% else %}
+                <div class="registration-actions">
+                    <a href="{% url 'event_list' %}" class="btn btn-secondary">Back to Events</a>
+                    
+                    {% if event.can_register %}
+                        <form method="POST" action="{% url 'event_register' event.event_id %}" style="flex: 1;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary btn-block">
+                                Register for Event
+                            </button>
+                        </form>
+                    {% else %}
+                        <button class="btn btn-primary btn-block" disabled>
+                            Registration Closed
+                        </button>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

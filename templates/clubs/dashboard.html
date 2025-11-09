@@ -1,0 +1,384 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ club.club_name }} Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .club-dashboard {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .dashboard-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: var(--white);
+        padding: 2rem;
+        border-radius: 0.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .dashboard-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .role-badge-header {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-top: 0.5rem;
+    }
+
+    .actions-bar {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: var(--white);
+        padding: 2rem;
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .stat-card h3 {
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+        opacity: 0.9;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .stat-card p {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .events-section {
+        background-color: var(--white);
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow-md);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--gray-200);
+    }
+
+    .section-header h2 {
+        font-size: 1.5rem;
+        color: var(--gray-900);
+        margin: 0;
+    }
+
+    .event-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .event-table th {
+        background-color: var(--gray-50);
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: var(--gray-700);
+        border-bottom: 2px solid var(--gray-200);
+    }
+
+    .event-table td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--gray-200);
+        vertical-align: middle;
+    }
+
+    .event-table tbody tr:hover {
+        background-color: var(--gray-50);
+    }
+
+    .event-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-xs {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.813rem;
+    }
+
+    .no-events {
+        text-align: center;
+        padding: 3rem;
+        color: var(--gray-500);
+    }
+
+    @media (max-width: 768px) {
+        .club-dashboard {
+            padding: 1rem;
+        }
+
+        .actions-bar {
+            flex-direction: column;
+        }
+
+        .event-table {
+            font-size: 0.875rem;
+        }
+
+        .event-table th,
+        .event-table td {
+            padding: 0.75rem 0.5rem;
+        }
+
+        .event-actions {
+            flex-direction: column;
+        }
+
+        .event-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="club-dashboard">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <h1>{{ club.club_name }}</h1>
+        <p>Welcome, {{ member.student.first_name }}!</p>
+        <span class="role-badge-header">{{ member.role.role_name }}</span>
+    </div>
+
+    <!-- Actions Bar -->
+    <div class="actions-bar">
+        {% if member.role.can_create_events %}
+        <a href="{% url 'create_event' %}" class="btn btn-success">
+            + Create New Event
+        </a>
+        {% endif %}
+
+        <a href="{% url 'club_member_profile' %}" class="btn btn-secondary">
+                ✏️ Edit Profile
+        </a>
+
+        {% if member.role.can_view_reports %}
+        <a href="{% url 'club_analytics' %}" class="btn btn-primary">
+            📊 View Analytics
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Statistics -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Total Events</h3>
+            <p>{{ total_events }}</p>
+        </div>
+
+        <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+            <h3>Upcoming Events</h3>
+            <p>{{ upcoming_events.count }}</p>
+        </div>
+
+        <div class="stat-card" style="background: linear-gradient(135deg, #10b981, #059669);">
+            <h3>Club Members</h3>
+            <p>{{ members_count }}</p>
+        </div>
+
+        <div class="stat-card" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+            <h3>Completed Events</h3>
+            <p>{{ completed_events.count }}</p>
+        </div>
+    </div>
+
+    <!-- Ongoing Events -->
+    {% if ongoing_events %}
+    <div class="events-section">
+        <div class="section-header">
+            <h2>🔴 Ongoing Events</h2>
+        </div>
+
+        <table class="event-table">
+            <thead>
+                <tr>
+                    <th>Event Name</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Registered</th>
+                    <th style="min-width: 200px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in ongoing_events %}
+                <tr>
+                    <td>
+                        <strong>{{ event.event_name }}</strong>
+                        {% if event.has_activity_points %}
+                        <br><span style="color: #f59e0b; font-size: 0.875rem;">⭐ {{ event.activity_points }} points</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ event.event_date|date:"M d, Y" }}</td>
+                    <td>{{ event.start_time|time:"g:i A" }}</td>
+                    <td>{{ event.get_registered_count }}</td>
+                    <td>
+                        <div class="event-actions">
+                            {% if member.role.can_mark_attendance %}
+                            <a href="{% url 'event_attendance' event.event_id %}" class="btn btn-primary btn-xs">
+                                Mark Attendance
+                            </a>
+                            {% endif %}
+
+                            {% if member.role.can_end_events %}
+                            <a href="{% url 'end_event' event.event_id %}" class="btn btn-success btn-xs"
+                               onclick="return confirm('End this event?')">
+                                End Event
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- Upcoming Events -->
+    <div class="events-section">
+        <div class="section-header">
+            <h2>📅 Upcoming Events</h2>
+        </div>
+
+        {% if upcoming_events %}
+        <table class="event-table">
+            <thead>
+                <tr>
+                    <th>Event Name</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Venue</th>
+                    <th>Registered</th>
+                    <th style="min-width: 250px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in upcoming_events %}
+                <tr>
+                    <td>
+                        <strong>{{ event.event_name }}</strong>
+                        {% if event.has_activity_points %}
+                        <br><span style="color: #f59e0b; font-size: 0.875rem;">⭐ {{ event.activity_points }} points</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ event.event_date|date:"M d, Y" }}</td>
+                    <td>{{ event.start_time|time:"g:i A" }}</td>
+                    <td>{{ event.venue|default:"-" }}</td>
+                    <td>{{ event.get_registered_count }}</td>
+                    <td>
+                        <div class="event-actions">
+                            {% if member.role.can_start_events %}
+                            <a href="{% url 'start_event' event.event_id %}" class="btn btn-success btn-xs"
+                               onclick="return confirm('Start this event?')">
+                                Start
+                            </a>
+                            {% endif %}
+
+                            {% if member.role.can_edit_events %}
+                            <a href="{% url 'edit_event' event.event_id %}" class="btn btn-primary btn-xs">
+                                Edit
+                            </a>
+                            {% endif %}
+
+                            {% if member.role.can_delete_events %}
+                            <a href="{% url 'delete_event' event.event_id %}" class="btn btn-danger btn-xs"
+                               onclick="return confirm('Delete this event?')">
+                                Delete
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="no-events">
+            <p>No upcoming events.</p>
+            {% if member.role.can_create_events %}
+            <a href="{% url 'create_event' %}" class="btn btn-primary" style="margin-top: 1rem;">
+                Create Your First Event
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Completed Events -->
+    {% if completed_events %}
+    <div class="events-section">
+        <div class="section-header">
+            <h2>✓ Recent Completed Events</h2>
+        </div>
+
+        <table class="event-table">
+            <thead>
+                <tr>
+                    <th>Event Name</th>
+                    <th>Date</th>
+                    <th>Registered</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in completed_events|slice:":5" %}
+                <tr>
+                    <td>
+                        <strong>{{ event.event_name }}</strong>
+                        {% if event.has_activity_points %}
+                        <br><span style="color: #f59e0b; font-size: 0.875rem;">⭐ {{ event.activity_points }} points</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ event.event_date|date:"M d, Y" }}</td>
+                    <td>{{ event.get_registered_count }}</td>
+                    <td>
+                        <span style="color: var(--success-color); font-weight: 600;">✓ Completed</span>
+                    </td>
+                    <td>
+                        {% if member.role.can_view_reports %}
+                        <a href="{% url 'download_event_report' event.event_id %}" class="btn btn-primary btn-xs">
+                            📄 Download Report
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Event - {{ club.club_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .create-event-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 0 2rem;
+    }
+
+    .form-card {
+        background-color: var(--white);
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow-lg);
+        padding: 2rem;
+    }
+
+    .form-card h1 {
+        font-size: 1.75rem;
+        color: var(--gray-900);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-card p {
+        color: var(--gray-600);
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="create-event-container">
+    <div class="form-card">
+        <h1>Create New Event</h1>
+        <p>{{ club.club_name }}</p>
+
+        <form method="POST" action="{% url 'create_event' %}" id="createEventForm">
+            {% csrf_token %}
+
+            <!-- Event Name -->
+            <div class="form-group">
+                <label for="event_name" class="form-label">
+                    Event Name <span class="required">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="event_name" 
+                    name="event_name" 
+                    class="form-input" 
+                    placeholder="e.g., Coding Competition 2025"
+                    required
+                    autofocus
+                >
+            </div>
+
+            <!-- Event Description -->
+            <div class="form-group">
+                <label for="event_description" class="form-label">
+                    Event Description
+                </label>
+                <textarea 
+                    id="event_description" 
+                    name="event_description" 
+                    class="form-textarea" 
+                    rows="4"
+                    placeholder="Describe your event..."
+                ></textarea>
+            </div>
+
+            <!-- Event Type -->
+            <div class="form-group">
+                <label for="event_type" class="form-label">
+                    Event Type <span class="required">*</span>
+                </label>
+                <select id="event_type" name="event_type" class="form-select" required onchange="toggleActivityPoints()">
+                    <option value="NORMAL">Normal Event</option>
+                    <option value="ACTIVITY_POINTS">Event with Activity Points</option>
+                </select>
+            </div>
+
+            <!-- Activity Points -->
+            <div class="form-group" id="activity_points_group" style="display: none;">
+                <label for="activity_points" class="form-label">
+                    Activity Points <span class="required">*</span>
+                </label>
+                <input 
+                    type="number" 
+                    id="activity_points" 
+                    name="activity_points" 
+                    class="form-input" 
+                    placeholder="e.g., 10"
+                    min="1"
+                    max="100"
+                >
+                <span class="form-help">Points awarded to students who attend (1-100)</span>
+            </div>
+
+            <!-- Date and Time -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="event_date" class="form-label">
+                        Event Date <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="date" 
+                        id="event_date" 
+                        name="event_date" 
+                        class="form-input" 
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="start_time" class="form-label">
+                        Start Time <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="time" 
+                        id="start_time" 
+                        name="start_time" 
+                        class="form-input" 
+                        required
+                    >
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="end_time" class="form-label">
+                        End Time
+                    </label>
+                    <input 
+                        type="time" 
+                        id="end_time" 
+                        name="end_time" 
+                        class="form-input"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="max_participants" class="form-label">
+                        Max Participants
+                    </label>
+                    <input 
+                        type="number" 
+                        id="max_participants" 
+                        name="max_participants" 
+                        class="form-input" 
+                        placeholder="Leave empty for unlimited"
+                        min="1"
+                    >
+                </div>
+            </div>
+
+            <!-- Venue -->
+            <div class="form-group">
+                <label for="venue" class="form-label">
+                    Venue
+                </label>
+                <input 
+                    type="text" 
+                    id="venue" 
+                    name="venue" 
+                    class="form-input" 
+                    placeholder="e.g., Auditorium, Lab 101"
+                >
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="form-row">
+                <a href="{% url 'club_dashboard' %}" class="btn btn-secondary btn-block">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-primary btn-block">
+                    Create Event
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleActivityPoints() {
+        const eventType = document.getElementById('event_type').value;
+        const activityPointsGroup = document.getElementById('activity_points_group');
+        const activityPointsInput = document.getElementById('activity_points');
+        
+        if (eventType === 'ACTIVITY_POINTS') {
+            activityPointsGroup.style.display = 'block';
+            activityPointsInput.required = true;
+        } else {
+            activityPointsGroup.style.display = 'none';
+            activityPointsInput.required = false;
+            activityPointsInput.value = '';
+        }
+    }
+
+    // Set minimum date to today
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateInput = document.getElementById('event_date');
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.min = today;
+    });
+</script>
+{% endblock %}

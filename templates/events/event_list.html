@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+
+{% block title %}Events - Event Assistant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .events-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+        font-size: 2rem;
+        color: var(--gray-900);
+        margin-bottom: 0.5rem;
+    }
+
+    .filters-section {
+        background-color: var(--white);
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow-md);
+        margin-bottom: 2rem;
+    }
+
+    .filter-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr auto;
+        gap: 1rem;
+        align-items: end;
+    }
+
+    .event-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .event-card {
+        background-color: var(--white);
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .event-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .event-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .event-type-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+    }
+
+    .badge-normal {
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
+
+    .badge-activity {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+
+    .event-card h3 {
+        font-size: 1.25rem;
+        color: var(--gray-900);
+        margin-bottom: 0.5rem;
+    }
+
+    .event-club {
+        color: var(--gray-600);
+        font-size: 0.875rem;
+    }
+
+    .event-body {
+        padding: 1.5rem;
+    }
+
+    .event-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--gray-700);
+        font-size: 0.875rem;
+    }
+
+    .info-icon {
+        width: 1.25rem;
+        height: 1.25rem;
+        color: var(--primary-color);
+    }
+
+    .event-footer {
+        padding: 1rem 1.5rem;
+        background-color: var(--gray-50);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .registration-status {
+        font-size: 0.875rem;
+        color: var(--gray-600);
+    }
+
+    .btn-small {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    .registered-badge {
+        background-color: var(--success-color);
+        color: var(--white);
+        padding: 0.5rem 1rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .no-events {
+        text-align: center;
+        padding: 3rem;
+        color: var(--gray-500);
+    }
+
+    .activity-points-display {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        background-color: #fef3c7;
+        color: #92400e;
+        padding: 0.25rem 0.75rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+        .filter-row {
+            grid-template-columns: 1fr;
+        }
+
+        .event-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="events-container">
+    <div class="page-header">
+        <h1>Upcoming Events</h1>
+        <p>Browse and register for upcoming events</p>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-section">
+        <form method="GET" action="{% url 'event_list' %}">
+            <div class="filter-row">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="search" class="form-label">Search Events</label>
+                    <input
+                        type="text"
+                        id="search"
+                        name="search"
+                        class="form-input"
+                        placeholder="Search by name, description, or club"
+                        value="{{ search_query }}"
+                    >
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="type" class="form-label">Event Type</label>
+                    <select id="type" name="type" class="form-select">
+                        <option value="">All Types</option>
+                        <option value="NORMAL" {% if selected_type == 'NORMAL' %}selected{% endif %}>Normal</option>
+                        <option value="ACTIVITY_POINTS" {% if selected_type == 'ACTIVITY_POINTS' %}selected{% endif %}>Activity Points</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="club" class="form-label">Club</label>
+                    <select id="club" name="club" class="form-select">
+                        <option value="">All Clubs</option>
+                        {% for club in clubs %}
+                        <option value="{{ club.club_name }}" {% if selected_club == club.club_name %}selected{% endif %}>
+                            {{ club.club_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="visibility: hidden;">Filter</label>
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Events Grid -->
+    {% if events %}
+    <div class="event-grid">
+        {% for event in events %}
+        <div class="event-card">
+            <div class="event-header">
+                <span class="event-type-badge {% if event.event_type == 'ACTIVITY_POINTS' %}badge-activity{% else %}badge-normal{% endif %}">
+                    {% if event.event_type == 'ACTIVITY_POINTS' %}
+                        Activity Points
+                    {% else %}
+                        Normal Event
+                    {% endif %}
+                </span>
+                <h3>{{ event.event_name }}</h3>
+                <p class="event-club">{{ event.club.club_name }}</p>
+            </div>
+
+            <div class="event-body">
+                <div class="event-info">
+                    <div class="info-item">
+                        <span class="info-icon">📅</span>
+                        <span>{{ event.event_date|date:"F d, Y" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">🕐</span>
+                        <span>{{ event.start_time|time:"g:i A" }}</span>
+                    </div>
+                    {% if event.venue %}
+                    <div class="info-item">
+                        <span class="info-icon">📍</span>
+                        <span>{{ event.venue }}</span>
+                    </div>
+                    {% endif %}
+                    {% if event.has_activity_points %}
+                    <div class="info-item">
+                        <span class="activity-points-display">
+                            ⭐ {{ event.activity_points }} Activity Points
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if event.event_description %}
+                <p style="color: var(--gray-600); font-size: 0.875rem; margin-bottom: 1rem;">
+                    {{ event.event_description|truncatewords:20 }}
+                </p>
+                {% endif %}
+            </div>
+
+            <div class="event-footer">
+                <span class="registration-status">
+                    {{ event.registered_count }}{% if event.max_participants %}/{{ event.max_participants }}{% endif %} registered
+                </span>
+
+                {% if event.is_registered %}
+                    <span class="registered-badge">✓ Registered</span>
+                {% else %}
+                    <a href="{% url 'event_detail' event.event_id %}" class="btn btn-primary btn-small">
+                        View Details
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-events">
+        <h2>No events found</h2>
+        <p>There are no upcoming events matching your criteria.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

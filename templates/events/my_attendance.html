@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block title %}My Attendance - Event Assistant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .attendance-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .stats-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card-large {
+        background-color: var(--white);
+        padding: 2rem;
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow-md);
+        text-align: center;
+    }
+
+    .stat-card-large h3 {
+        font-size: 3rem;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-card-large p {
+        color: var(--gray-600);
+        font-weight: 500;
+    }
+
+    .attendance-table {
+        background-color: var(--white);
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+    }
+
+    .table-header {
+        background-color: var(--primary-color);
+        color: var(--white);
+        padding: 1rem 1.5rem;
+    }
+
+    .table-header h2 {
+        margin: 0;
+        font-size: 1.25rem;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    thead {
+        background-color: var(--gray-50);
+    }
+
+    th {
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: var(--gray-700);
+        border-bottom: 2px solid var(--gray-200);
+    }
+
+    td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    tbody tr:hover {
+        background-color: var(--gray-50);
+    }
+
+    .status-icon {
+        font-size: 1.25rem;
+    }
+
+    .points-earned {
+        background-color: #fef3c7;
+        color: #92400e;
+        padding: 0.25rem 0.75rem;
+        border-radius: 0.25rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    @media (max-width: 768px) {
+        table {
+            font-size: 0.875rem;
+        }
+
+        th, td {
+            padding: 0.75rem 0.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="attendance-container">
+    <div class="page-header">
+        <h1>My Attendance History</h1>
+        <p>Track your event attendance and activity points</p>
+    </div>
+
+    <!-- Statistics -->
+    <div class="stats-section">
+        <div class="stat-card-large">
+            <h3>{{ student.total_activity_points }}</h3>
+            <p>Total Activity Points</p>
+        </div>
+
+        <div class="stat-card-large">
+            <h3>{{ total_attended }}</h3>
+            <p>Events Attended</p>
+        </div>
+
+        <div class="stat-card-large">
+            <h3>{{ total_absent }}</h3>
+            <p>Absences</p>
+        </div>
+    </div>
+
+    <!-- Attendance Records -->
+    <div class="attendance-table">
+        <div class="table-header">
+            <h2>Attendance Records</h2>
+        </div>
+
+        {% if attendance_records %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Event</th>
+                    <th>Club</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Points Earned</th>
+                    <th>Marked On</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in attendance_records %}
+                <tr>
+                    <td>
+                        <strong>{{ record.event.event_name }}</strong>
+                        {% if record.event.event_type == 'ACTIVITY_POINTS' %}
+                        <span style="color: var(--warning-color); font-size: 0.875rem;">⭐</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ record.event.club.club_name }}</td>
+                    <td>{{ record.event.event_date|date:"M d, Y" }}</td>
+                    <td>
+                        {% if record.attendance_status == 'PRESENT' %}
+                            <span class="status-icon" style="color: var(--success-color);">✓ Present</span>
+                        {% else %}
+                            <span class="status-icon" style="color: var(--danger-color);">✗ Absent</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if record.attendance_status == 'PRESENT' and record.event.has_activity_points %}
+                            <span class="points-earned">+{{ record.event.activity_points }}</span>
+                        {% else %}
+                            <span style="color: var(--gray-400);">—</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ record.marked_at|date:"M d, Y g:i A" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="text-align: center; padding: 3rem; color: var(--gray-500);">
+            No attendance records yet
+        </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

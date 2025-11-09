@@ -1,0 +1,301 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ club.club_name }} - Management{% endblock %}
+
+{% block extra_css %}
+<style>
+    .club-management {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .club-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: var(--white);
+        padding: 2rem;
+        border-radius: 0.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .club-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .management-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+    }
+
+    .section-card {
+        background-color: var(--white);
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow-md);
+        padding: 2rem;
+    }
+
+    .section-card h2 {
+        font-size: 1.5rem;
+        color: var(--gray-900);
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid var(--primary-color);
+    }
+
+    .members-list {
+        list-style: none;
+    }
+
+    .member-item {
+        padding: 1rem;
+        border: 1px solid var(--gray-200);
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .member-info h4 {
+        font-size: 1rem;
+        color: var(--gray-900);
+        margin-bottom: 0.25rem;
+    }
+
+    .member-meta {
+        font-size: 0.875rem;
+        color: var(--gray-600);
+    }
+
+    .role-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .role-head {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+
+    .role-coordinator {
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
+
+    .role-member {
+        background-color: #e5e7eb;
+        color: #374151;
+    }
+
+    .add-form {
+        background-color: var(--gray-50);
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-inline {
+        display: flex;
+        gap: 1rem;
+        align-items: end;
+    }
+
+    .form-inline .form-group {
+        flex: 1;
+        margin-bottom: 0;
+    }
+
+    .btn-icon {
+        padding: 0.5rem;
+        min-width: auto;
+    }
+
+    @media (max-width: 1024px) {
+        .management-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .form-inline {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .member-item {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: stretch;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="club-management">
+    <!-- Club Header -->
+    <div class="club-header">
+        <h1>{{ club.club_name }}</h1>
+        <p>{{ club.club_description|default:"Manage club members and activities" }}</p>
+        <div style="margin-top: 1rem;">
+            <a href="{% url 'club_analytics_faculty' club.club_id %}" class="btn btn-success" style="background-color: rgba(255, 255, 255, 0.2); border: 2px solid white;">
+                📊 View Club Analytics
+            </a>
+        </div>
+    </div>
+
+    <div class="management-grid">
+        <!-- Members Section -->
+        <div class="section-card">
+            <h2>Club Members ({{ members.count }})</h2>
+
+            <!-- Add Club Head Form -->
+            <div class="add-form">
+                <h3 style="margin-bottom: 1rem; font-size: 1rem;">Appoint Club Head</h3>
+                <form method="POST" action="{% url 'appoint_club_head' club.club_id %}">
+                    {% csrf_token %}
+                    <div class="form-inline">
+                        <div class="form-group">
+                            <label for="student_usn_head" class="form-label">Student USN</label>
+                            <input
+                                type="text"
+                                id="student_usn_head"
+                                name="student_usn"
+                                class="form-input"
+                                placeholder="e.g., 1AB20CS001"
+                                required
+                            >
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            Appoint as Head
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Add Member Form -->
+            <div class="add-form">
+                <h3 style="margin-bottom: 1rem; font-size: 1rem;">Add Club Member</h3>
+                <form method="POST" action="{% url 'add_club_member' club.club_id %}">
+                    {% csrf_token %}
+                    <div class="form-inline">
+                        <div class="form-group">
+                            <label for="student_usn" class="form-label">Student USN</label>
+                            <input
+                                type="text"
+                                id="student_usn"
+                                name="student_usn"
+                                class="form-input"
+                                placeholder="e.g., 1AB20CS001"
+                                required
+                            >
+                        </div>
+                        <div class="form-group">
+                            <label for="role" class="form-label">Role</label>
+                            <select id="role" name="role" class="form-select" required>
+                                <option value="CO-COORDINATOR">Co-Coordinator</option>
+                                <option value="MEMBER" selected>Member</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            Add Member
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Members List -->
+            {% if members %}
+            <ul class="members-list">
+                {% for member in members %}
+                <li class="member-item">
+                    <div class="member-info">
+                        <h4>{{ member.student.get_full_name }}</h4>
+                        <div class="member-meta">
+                            {{ member.student.usn }} •
+                            {{ member.student.department }} •
+                            Joined {{ member.joined_date|date:"M d, Y" }}
+                        </div>
+                        <div style="margin-top: 0.5rem;">
+                            <span class="role-badge {% if member.role.role_name == 'HEAD' %}role-head{% elif member.role.role_name == 'CO-COORDINATOR' %}role-coordinator{% else %}role-member{% endif %}">
+                                {{ member.role.role_name }}
+                            </span>
+                        </div>
+                    </div>
+                    <div>
+                        <form method="POST" action="{% url 'remove_club_member' club.club_id member.member_id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button
+                                type="submit"
+                                class="btn btn-danger btn-small"
+                                onclick="return confirm('Are you sure you want to remove {{ member.student.get_full_name }}?')"
+                            >
+                                Remove
+                            </button>
+                        </form>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p style="text-align: center; color: var(--gray-500); padding: 2rem;">
+                No members yet. Add members using the form above.
+            </p>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div>
+            <!-- Quick Stats -->
+            <div class="section-card" style="margin-bottom: 2rem;">
+                <h2>Quick Stats</h2>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="padding: 1rem; background-color: var(--gray-50); border-radius: 0.5rem;">
+                        <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.25rem;">Total Members</div>
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--primary-color);">{{ members.count }}</div>
+                    </div>
+                    <div style="padding: 1rem; background-color: var(--gray-50); border-radius: 0.5rem;">
+                        <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.25rem;">Total Events</div>
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--success-color);">{{ events.count }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Events -->
+            <div class="section-card">
+                <h2>Recent Events</h2>
+                {% if events %}
+                <ul style="list-style: none;">
+                    {% for event in events|slice:":5" %}
+                    <li style="padding: 0.75rem 0; border-bottom: 1px solid var(--gray-200);">
+                        <div style="font-weight: 600; color: var(--gray-900); margin-bottom: 0.25rem;">
+                            {{ event.event_name }}
+                        </div>
+                        <div style="font-size: 0.875rem; color: var(--gray-600);">
+                            {{ event.event_date|date:"M d, Y" }}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p style="text-align: center; color: var(--gray-500); padding: 1rem;">
+                    No events yet
+                </p>
+                {% endif %}
+            </div>
+
+            <!-- Actions -->
+            <div style="margin-top: 2rem;">
+                <a href="{% url 'faculty_dashboard' %}" class="btn btn-secondary btn-block">
+                    ← Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+
+{% block title %}Mark Attendance - {{ event.event_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .attendance-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 2rem;
+    }
+
+    .event-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: var(--white);
+        padding: 2rem;
+        border-radius: 0.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .event-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .attendance-card {
+        background-color: var(--white);
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow-lg);
+        padding: 2rem;
+    }
+
+    .attendance-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .attendance-table th {
+        background-color: var(--gray-50);
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: var(--gray-700);
+        border-bottom: 2px solid var(--gray-200);
+    }
+
+    .attendance-table td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .attendance-table tr:hover {
+        background-color: var(--gray-50);
+    }
+
+    .radio-group {
+        display: flex;
+        gap: 1.5rem;
+    }
+
+    .radio-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+    }
+
+    .radio-label input[type="radio"] {
+        width: 1.25rem;
+        height: 1.25rem;
+        cursor: pointer;
+    }
+
+    .status-present {
+        color: var(--success-color);
+        font-weight: 600;
+    }
+
+    .status-absent {
+        color: var(--danger-color);
+        font-weight: 600;
+    }
+
+    .summary-box {
+        background-color: var(--gray-50);
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-around;
+        text-align: center;
+    }
+
+    .summary-item h3 {
+        font-size: 2rem;
+        color: var(--primary-color);
+        margin-bottom: 0.25rem;
+    }
+
+    .summary-item p {
+        color: var(--gray-600);
+        font-size: 0.875rem;
+    }
+
+    @media (max-width: 768px) {
+        .attendance-table {
+            font-size: 0.875rem;
+        }
+
+        .summary-box {
+            flex-direction: column;
+            gap: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="attendance-container">
+    <!-- Event Header -->
+    <div class="event-header">
+        <h1>{{ event.event_name }}</h1>
+        <p>{{ event.event_date|date:"F d, Y" }} • {{ event.start_time|time:"g:i A" }}</p>
+        {% if event.has_activity_points %}
+        <p style="margin-top: 0.5rem;">⭐ {{ event.activity_points }} Activity Points</p>
+        {% endif %}
+    </div>
+
+    <!-- Summary -->
+    <div class="summary-box">
+        <div class="summary-item">
+            <h3>{{ attendance_data|length }}</h3>
+            <p>Total Registered</p>
+        </div>
+        <div class="summary-item">
+            <h3 id="presentCount">0</h3>
+            <p>Present</p>
+        </div>
+        <div class="summary-item">
+            <h3 id="absentCount">0</h3>
+            <p>Absent</p>
+        </div>
+        <div class="summary-item">
+            <h3 id="unmarkedCount">{{ attendance_data|length }}</h3>
+            <p>Not Marked</p>
+        </div>
+    </div>
+
+    <!-- Attendance Form -->
+    <div class="attendance-card">
+        <h2 style="margin-bottom: 1.5rem;">Mark Attendance</h2>
+
+        <form method="POST" action="{% url 'event_attendance' event.event_id %}" id="attendanceForm">
+            {% csrf_token %}
+
+            <table class="attendance-table">
+                <thead>
+                    <tr>
+                        <th>USN</th>
+                        <th>Student Name</th>
+                        <th>Department</th>
+                        <th>Attendance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in attendance_data %}
+                    <tr>
+                        <td><strong>{{ data.student.usn }}</strong></td>
+                        <td>{{ data.student.get_full_name }}</td>
+                        <td>{{ data.student.department }}</td>
+                        <td>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input 
+                                        type="radio" 
+                                        name="attendance_{{ data.student.student_id }}" 
+                                        value="PRESENT"
+                                        {% if data.attendance and data.attendance.attendance_status == 'PRESENT' %}checked{% endif %}
+                                        onchange="updateCounts()"
+                                    >
+                                    <span class="status-present">Present</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input 
+                                        type="radio" 
+                                        name="attendance_{{ data.student.student_id }}" 
+                                        value="ABSENT"
+                                        {% if data.attendance and data.attendance.attendance_status == 'ABSENT' %}checked{% endif %}
+                                        onchange="updateCounts()"
+                                    >
+                                    <span class="status-absent">Absent</span>
+                                </label>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                <a href="{% url 'club_dashboard' %}" class="btn btn-secondary">
+                    Back to Dashboard
+                </a>
+                <button type="submit" class="btn btn-primary" style="flex: 1;">
+                    Save Attendance
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function updateCounts() {
+        const radios = document.querySelectorAll('input[type="radio"]:checked');
+        let present = 0;
+        let absent = 0;
+        
+        radios.forEach(radio => {
+            if (radio.value === 'PRESENT') present++;
+            if (radio.value === 'ABSENT') absent++;
+        });
+        
+        const total = {{ attendance_data|length }};
+        const unmarked = total - present - absent;
+        
+        document.getElementById('presentCount').textContent = present;
+        document.getElementById('absentCount').textContent = absent;
+        document.getElementById('unmarkedCount').textContent = unmarked;
+    }
+
+    // Initial count
+    document.addEventListener('DOMContentLoaded', function() {
+        updateCounts();
+    });
+</script>
+{% endblock %}

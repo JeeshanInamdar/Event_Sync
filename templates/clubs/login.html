@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Club Login - Event Assistant{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Club Member Login</h1>
+            <p>Manage your club events and activities</p>
+        </div>
+
+        <form method="POST" action="{% url 'club_login' %}" id="loginForm">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="club_login_id" class="form-label">
+                    Club Login ID <span class="required">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="club_login_id" 
+                    name="club_login_id" 
+                    class="form-input" 
+                    placeholder="e.g., tech_club_1ab20cs001"
+                    required
+                    autofocus
+                >
+                <span class="form-help">Login ID sent to your email</span>
+                <span class="form-error" id="club_login_id-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">
+                    Password <span class="required">*</span>
+                </label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="form-input" 
+                    placeholder="Enter your password"
+                    required
+                >
+                <span class="form-error" id="password-error"></span>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary btn-block">
+                    Login
+                </button>
+            </div>
+        </form>
+
+        <div class="auth-footer">
+            <p>
+                <a href="{% url 'student_login' %}">Student Login</a> | 
+                <a href="{% url 'faculty_login' %}">Faculty Login</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

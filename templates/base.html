@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Event Assistant{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="/">Event Assistant</a>
+            </div>
+            <div class="nav-links">
+                {% if request.session.student_id %}
+                    <a href="/student/dashboard/">Dashboard</a>
+                    <a href="/events/">Events</a>
+                    <a href="/events/my-registrations/">My Registrations</a>
+                    <a href="/events/my-attendance/">My Attendance</a>
+                    <a href="/student/profile/">Profile</a>
+                    <a href="/student/logout/">Logout</a>
+                {% elif request.session.faculty_id %}
+                    <a href="/faculty/dashboard/">Dashboard</a>
+                    <a href="/faculty/logout/">Logout</a>
+                {% elif request.session.club_member_id %}
+                    <a href="/club/dashboard/">Dashboard</a>
+                    <a href="/club/logout/">Logout</a>
+                {% else %}
+                    <a href="/">Home</a>
+                    <a href="/student/login/">Student Login</a>
+                    <a href="/faculty/login/">Faculty Login</a>
+                    <a href="/club/login/">Club Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+                <div class="message message-{{ message.tags }}">
+                    {{ message }}
+                    <button class="message-close" onclick="this.parentElement.remove()">×</button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <p>&copy; 2025 Event Assistant. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/static/js/main.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Faculty Login - Event Assistant{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Faculty Login</h1>
+            <p>Manage your clubs and events</p>
+        </div>
+
+        <form method="POST" action="{% url 'faculty_login' %}" id="loginForm">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="faculty_code" class="form-label">
+                    Faculty Code <span class="required">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="faculty_code" 
+                    name="faculty_code" 
+                    class="form-input" 
+                    placeholder="Enter your faculty code"
+                    required
+                    autofocus
+                >
+                <span class="form-error" id="faculty_code-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">
+                    Password <span class="required">*</span>
+                </label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="form-input" 
+                    placeholder="Enter your password"
+                    required
+                >
+                <span class="form-error" id="password-error"></span>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary btn-block">
+                    Login
+                </button>
+            </div>
+        </form>
+
+        <div class="auth-footer">
+            <p>
+                <a href="{% url 'student_login' %}">Student Login</a> | 
+                <a href="/club/login/">Club Login</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        // Clear previous errors
+        document.getElementById('faculty_code-error').textContent = '';
+        document.getElementById('password-error').textContent = '';
+        
+        let isValid = true;
+        
+        // Validate Faculty Code
+        const facultyCode = document.getElementById('faculty_code').value.trim();
+        if (!facultyCode) {
+            document.getElementById('faculty_code-error').textContent = 'Faculty code is required';
+            document.getElementById('faculty_code').classList.add('error');
+            isValid = false;
+        } else {
+            document.getElementById('faculty_code').classList.remove('error');
+        }
+        
+        // Validate Password
+        const password = document.getElementById('password').value;
+        if (!password) {
+            document.getElementById('password-error').textContent = 'Password is required';
+            document.getElementById('password').classList.add('error');
+            isValid = false;
+        } else {
+            document.getElementById('password').classList.remove('error');
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+        }
+    });
+</script>
+{% endblock %}
