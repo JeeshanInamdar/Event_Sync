@@ -110,6 +110,16 @@
         font-size: 0.875rem;
     }
 
+    .club-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .club-actions .btn {
+        flex: 1;
+    }
+
     .event-list {
         list-style: none;
     }
@@ -146,9 +156,23 @@
         color: #1e40af;
     }
 
+    .btn-transfer {
+        background-color: #f59e0b;
+        color: white;
+        border: none;
+    }
+
+    .btn-transfer:hover {
+        background-color: #d97706;
+    }
+
     @media (max-width: 768px) {
         .clubs-grid {
             grid-template-columns: 1fr;
+        }
+
+        .club-actions {
+            flex-direction: column;
         }
     }
 </style>
@@ -191,6 +215,9 @@
     <div class="section">
         <div class="section-header">
             <h2>Your Clubs</h2>
+            <a href="{% url 'create_club' %}" class="btn btn-primary">
+                ➕ Create New Club
+            </a>
         </div>
 
         {% if clubs %}
@@ -198,7 +225,7 @@
             {% for club in clubs %}
             <div class="club-card">
                 <h3>{{ club.club_name }}</h3>
-                
+
                 <div class="club-stats">
                     <span>👥 {{ club.get_members_count }} Members</span>
                     <span>📅 {{ club.events.count }} Events</span>
@@ -214,16 +241,26 @@
                 </div>
                 {% endif %}
 
-                <a href="{% url 'club_detail' club.club_id %}" class="btn btn-primary btn-block">
-                    Manage Club
-                </a>
+                <div class="club-actions">
+                    <a href="{% url 'club_detail' club.club_id %}" class="btn btn-primary">
+                        Manage Club
+                    </a>
+                    <a href="{% url 'transfer_club' club.club_id %}" class="btn btn-transfer">
+                        🔄 Transfer
+                    </a>
+                </div>
             </div>
             {% endfor %}
         </div>
         {% else %}
-        <p style="text-align: center; color: var(--gray-500); padding: 2rem;">
-            You are not managing any clubs yet.
-        </p>
+        <div style="text-align: center; padding: 3rem;">
+            <p style="color: var(--gray-500); margin-bottom: 1.5rem; font-size: 1.125rem;">
+                You are not managing any clubs yet.
+            </p>
+            <a href="{% url 'create_club' %}" class="btn btn-primary btn-lg">
+                ➕ Create Your First Club
+            </a>
+        </div>
         {% endif %}
     </div>
 

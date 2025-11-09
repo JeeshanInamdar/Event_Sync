@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+
+{% block title %}Faculty Registration - Event Assistant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-container {
+        max-width: 700px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Faculty Registration</h1>
+            <p>Create your account to manage events and clubs</p>
+        </div>
+
+        <form method="POST" action="{% url 'faculty_register' %}" id="registerForm">
+            {% csrf_token %}
+
+            <!-- Faculty Code -->
+            <div class="form-group">
+                <label for="faculty_code" class="form-label">
+                    Faculty Code <span class="required">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="faculty_code" 
+                    name="faculty_code" 
+                    class="form-input" 
+                    placeholder="e.g., FAC123"
+                    required
+                    autofocus
+                >
+                <span class="form-help">Unique faculty code (letters and numbers)</span>
+                <span class="form-error" id="faculty_code-error"></span>
+            </div>
+
+            <!-- Name Fields -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="first_name" class="form-label">
+                        First Name <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="first_name" 
+                        name="first_name" 
+                        class="form-input" 
+                        placeholder="John"
+                        required
+                    >
+                    <span class="form-error" id="first_name-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="last_name" class="form-label">
+                        Last Name <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="last_name" 
+                        name="last_name" 
+                        class="form-input" 
+                        placeholder="Doe"
+                        required
+                    >
+                    <span class="form-error" id="last_name-error"></span>
+                </div>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+                <label for="email" class="form-label">
+                    Email <span class="required">*</span>
+                </label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    class="form-input" 
+                    placeholder="john.doe@college.edu"
+                    required
+                >
+                <span class="form-error" id="email-error"></span>
+            </div>
+
+            <!-- Phone -->
+            <div class="form-group">
+                <label for="phone" class="form-label">
+                    Phone Number
+                </label>
+                <input 
+                    type="tel" 
+                    id="phone" 
+                    name="phone" 
+                    class="form-input" 
+                    placeholder="9876543210"
+                >
+                <span class="form-error" id="phone-error"></span>
+            </div>
+
+            <!-- Department -->
+            <div class="form-group">
+                <label for="department" class="form-label">
+                    Department <span class="required">*</span>
+                </label>
+                <select id="department" name="department" class="form-select" required>
+                    <option value="">Select Department</option>
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="Information Science">Information Science</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Mechanical">Mechanical</option>
+                    <option value="Civil">Civil</option>
+                    <option value="Electrical">Electrical</option>
+                </select>
+                <span class="form-error" id="department-error"></span>
+            </div>
+
+            <!-- Password Fields -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="password" class="form-label">
+                        Password <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="form-input" 
+                        placeholder="Minimum 8 characters"
+                        required
+                    >
+                    <span class="form-error" id="password-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm_password" class="form-label">
+                        Confirm Password <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="password" 
+                        id="confirm_password" 
+                        name="confirm_password" 
+                        class="form-input" 
+                        placeholder="Re-enter password"
+                        required
+                    >
+                    <span class="form-error" id="confirm_password-error"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary btn-block">
+                    Register
+                </button>
+            </div>
+        </form>
+
+        <div class="auth-footer">
+            <p>Already have an account? <a href="{% url 'faculty_login' %}">Login here</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        // Clear previous errors
+        const errorElements = document.querySelectorAll('.form-error');
+        errorElements.forEach(el => el.textContent = '');
+        const inputs = document.querySelectorAll('.form-input, .form-select');
+        inputs.forEach(input => input.classList.remove('error'));
+
+        let isValid = true;
+
+        // Validate Faculty Code
+        const facultyCode = document.getElementById('faculty_code').value.trim();
+        const codeRegex = /^(?=.*[A-Za-z])(?=.*[0-9])[A-Za-z0-9]+$/;
+        if (!codeRegex.test(facultyCode)) {
+            document.getElementById('faculty_code-error').textContent = 'Faculty code must contain both letters and numbers';
+            document.getElementById('faculty_code').classList.add('error');
+            isValid = false;
+        }
+
+        // Validate Names
+        const firstName = document.getElementById('first_name').value.trim();
+        const lastName = document.getElementById('last_name').value.trim();
+        if (firstName.length < 2) {
+            document.getElementById('first_name-error').textContent = 'First name must be at least 2 characters';
+            document.getElementById('first_name').classList.add('error');
+            isValid = false;
+        }
+        if (lastName.length < 2) {
+            document.getElementById('last_name-error').textContent = 'Last name must be at least 2 characters';
+            document.getElementById('last_name').classList.add('error');
+            isValid = false;
+        }
+
+        // Validate Email
+        const email = document.getElementById('email').value.trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            document.getElementById('email-error').textContent = 'Please enter a valid email address';
+            document.getElementById('email').classList.add('error');
+            isValid = false;
+        }
+
+        // Validate Phone
+        const phone = document.getElementById('phone').value.trim();
+        if (phone && !/^\d{10}$/.test(phone)) {
+            document.getElementById('phone-error').textContent = 'Phone number must be 10 digits';
+            document.getElementById('phone').classList.add('error');
+            isValid = false;
+        }
+
+        // Validate Password
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+        if (password.length < 8) {
+            document.getElementById('password-error').textContent = 'Password must be at least 8 characters';
+            document.getElementById('password').classList.add('error');
+            isValid = false;
+        }
+        if (password !== confirmPassword) {
+            document.getElementById('confirm_password-error').textContent = 'Passwords do not match';
+            document.getElementById('confirm_password').classList.add('error');
+            isValid = false;
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    });
+</script>
+{% endblock %}

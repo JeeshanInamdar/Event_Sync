@@ -42,6 +42,68 @@ def faculty_login(request):
 
     return render(request, 'faculty/login.html')
 
+def faculty_register(request):
+    """Faculty registration view"""
+    # If already logged in, redirect to dashboard
+    if request.session.get('faculty_id'):
+        return redirect('faculty_dashboard')
+
+    if request.method == 'POST':
+        # Get form data
+        faculty_code = request.POST.get('faculty_code', '').strip().upper()
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        email = request.POST.get('email', '').strip().lower()
+        phone = request.POST.get('phone', '').strip()
+        department = request.POST.get('department', '').strip()
+        password = request.POST.get('password', '')
+        confirm_password = request.POST.get('confirm_password', '')
+
+        # Validation
+        if not all([faculty_code, first_name, last_name, email, department, password, confirm_password]):
+            messages.error(request, 'Please fill all required fields')
+            return render(request, 'faculty/register.html')
+
+        if password != confirm_password:
+            messages.error(request, 'Passwords do not match')
+            return render(request, 'faculty/register.html')
+
+        if len(password) < 8:
+            messages.error(request, 'Password must be at least 8 characters long')
+            return render(request, 'faculty/register.html')
+
+        try:
+            # Create faculty
+            faculty = Faculty(
+                faculty_code=faculty_code,
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+                phone=phone if phone else None,
+                department=department,
+            )
+
+            # Set password (assuming Faculty model has set_password method like Student)
+            faculty.set_password(password)
+
+            # Save to database
+            faculty.save()
+
+            messages.success(request, 'Registration successful! Please login to continue.')
+            return redirect('faculty_login')
+
+        except IntegrityError as e:
+            if 'faculty_code' in str(e).lower():
+                messages.error(request, 'Faculty Code already exists. Please use a different one.')
+            elif 'email' in str(e).lower():
+                messages.error(request, 'Email already exists. Please use a different email.')
+            else:
+                messages.error(request, 'Registration failed. Please try again.')
+
+        except Exception as e:
+            messages.error(request, f'An error occurred: {str(e)}')
+
+    return render(request, 'faculty/register.html')
 
 def faculty_logout(request):
     """Faculty logout view"""
@@ -97,6 +159,143 @@ def faculty_dashboard(request):
     }
 
     return render(request, 'faculty/dashboard.html', context)
+
+
+def create_club(request):
+    """Create a new club"""
+    # Check if logged in
+    if not request.session.get('faculty_id'):
+        messages.warning(request, 'Please login first')
+        return redirect('faculty_login')
+
+    faculty_id = request.session.get('faculty_id')
+    faculty = Faculty.objects.get(faculty_id=faculty_id)
+
+    if request.method == 'POST':
+        club_name = request.POST.get('club_name', '').strip()
+        club_description = request.POST.get('club_description', '').strip()
+        club_email = request.POST.get('club_email', '').strip().lower()
+        established_date = request.POST.get('established_date', '')
+
+        # Validation
+        if not club_name:
+            messages.error(request, 'Club name is required')
+            return redirect('create_club')
+
+        # Check if club name already exists
+        if Club.objects.filter(club_name__iexact=club_name).exists():
+            messages.error(request, 'A club with this name already exists')
+            return redirect('create_club')
+
+        try:
+            # Create new club
+            club = Club.objects.create(
+                club_name=club_name,
+                club_description=club_description if club_description else None,
+                club_email=club_email if club_email else None,
+                established_date=established_date if established_date else None,
+                faculty_incharge=faculty,  # Automatically assign creator as in-charge
+                is_active=True
+            )
+
+            messages.success(
+                request,
+                f'Club "{club_name}" created successfully! You have been assigned as the faculty in-charge.'
+            )
+            return redirect('club_detail', club_id=club.club_id)
+
+        except IntegrityError:
+            messages.error(request, 'Error creating club. Please try again.')
+        except Exception as e:
+            messages.error(request, f'Error: {str(e)}')
+
+    context = {
+        'faculty': faculty
+    }
+
+    return render(request, 'faculty/create_club.html', context)
+
+
+def transfer_club(request, club_id):
+    """Transfer club to another faculty"""
+    # Check if logged in
+    if not request.session.get('faculty_id'):
+        messages.warning(request, 'Please login first')
+        return redirect('faculty_login')
+
+    faculty_id = request.session.get('faculty_id')
+    faculty = Faculty.objects.get(faculty_id=faculty_id)
+
+    # Get club and verify current faculty is in-charge
+    club = get_object_or_404(Club, club_id=club_id)
+
+    if club.faculty_incharge != faculty:
+        messages.error(request, 'You are not authorized to transfer this club')
+        return redirect('faculty_dashboard')
+
+    if request.method == 'POST':
+        new_faculty_code = request.POST.get('faculty_code', '').strip().upper()
+
+        try:
+            # Find new faculty
+            new_faculty = Faculty.objects.get(
+                faculty_code=new_faculty_code,
+                is_active=True
+            )
+
+            # Check if trying to transfer to self
+            if new_faculty.faculty_id == faculty.faculty_id:
+                messages.error(request, 'You are already the in-charge of this club')
+                return redirect('transfer_club', club_id=club_id)
+
+            # Transfer club
+            old_faculty_name = faculty.get_full_name()
+            club.faculty_incharge = new_faculty
+            club.save()
+
+            # Send email notification to new faculty
+            try:
+                send_mail(
+                    subject=f'Club Transfer: {club.club_name}',
+                    message=f'''Dear {new_faculty.get_full_name()},
+
+You have been assigned as the faculty in-charge of {club.club_name}.
+
+This club was transferred to you by {old_faculty_name}.
+
+Club Details:
+- Name: {club.club_name}
+- Description: {club.club_description or 'N/A'}
+- Members: {club.get_members_count()}
+
+Please log in to your dashboard to manage the club.
+
+Best regards,
+Event Assistant System''',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[new_faculty.email],
+                    fail_silently=True,
+                )
+            except Exception as e:
+                print(f"Email send error: {e}")
+
+            messages.success(
+                request,
+                f'Club "{club.club_name}" has been successfully transferred to {new_faculty.get_full_name()}'
+            )
+            return redirect('faculty_dashboard')
+
+        except Faculty.DoesNotExist:
+            messages.error(request, f'Faculty with code "{new_faculty_code}" not found')
+        except Exception as e:
+            messages.error(request, f'Error: {str(e)}')
+
+    context = {
+        'faculty': faculty,
+        'club': club
+    }
+
+    return render(request, 'faculty/transfer_club.html', context)
 
 
 def club_detail(request, club_id):
