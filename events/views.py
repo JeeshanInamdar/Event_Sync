@@ -48,10 +48,18 @@ def event_list(request):
         registration_status='REGISTERED'
     ).values_list('event_id', flat=True)
 
-    # Add registration status to each event
+    # Add registration status and social score eligibility to each event
     for event in events:
         event.is_registered = event.event_id in registered_event_ids
         event.registered_count = event.get_registered_count()
+
+        # Check if student can register based on social score
+        event.can_register_social_score = True
+        event.social_score_required = False
+
+        if event.has_activity_points():
+            event.social_score_required = True
+            event.can_register_social_score = student.can_register_for_activity_event()
 
     # Get all clubs for filter dropdown
     from clubs.models import Club
@@ -98,12 +106,29 @@ def event_detail(request, event_id):
             registration_status='REGISTERED'
         )
 
+    # Check social score eligibility for activity events
+    can_register_social_score = True
+    social_score_message = None
+    social_score_required = False
+
+    if event.has_activity_points():
+        social_score_required = True
+        if not student.can_register_for_activity_event():
+            can_register_social_score = False
+            social_score_message = (
+                f"Your social score ({student.social_score}%) does not meet the required criteria (98%). "
+                f"Please participate in non-activity point events to increase your social score."
+            )
+
     context = {
         'event': event,
         'student': student,
         'is_registered': is_registered,
         'registration': registration,
         'registered_count': event.get_registered_count(),
+        'can_register_social_score': can_register_social_score,
+        'social_score_message': social_score_message,
+        'social_score_required': social_score_required,
     }
 
     return render(request, 'events/event_detail.html', context)
@@ -121,6 +146,16 @@ def event_register(request, event_id):
 
     # Get event
     event = get_object_or_404(Event, event_id=event_id)
+
+    # CRITICAL: Check social score for activity events
+    if event.has_activity_points() and not student.can_register_for_activity_event():
+        messages.error(
+            request,
+            f'❌ Registration Blocked: Your social score ({student.social_score}%) does not meet '
+            f'the required criteria (98%). Please participate in non-activity point events to '
+            f'increase your social score.'
+        )
+        return redirect('event_detail', event_id=event_id)
 
     # Check if event can accept registrations
     if not event.can_register():
@@ -159,7 +194,11 @@ def event_register(request, event_id):
         registration.full_clean()  # Validate
         registration.save()
 
-        messages.success(request, f'Successfully registered for {event.event_name}!')
+        success_message = f'✓ Successfully registered for {event.event_name}!'
+        if event.has_activity_points():
+            success_message += f' (Activity Points: {event.activity_points})'
+
+        messages.success(request, success_message)
         return redirect('event_detail', event_id=event_id)
 
     except ValidationError as e:
@@ -270,6 +309,10 @@ def my_attendance(request):
     total_attended = attendance_records.filter(attendance_status='PRESENT').count()
     total_absent = attendance_records.filter(attendance_status='ABSENT').count()
 
+    # Calculate attendance rate
+    total_events = attendance_records.count()
+    attendance_rate = (total_attended / total_events * 100) if total_events > 0 else 0
+
     # Calculate activity points breakdown
     activity_points_earned = []
     for record in attendance_records.filter(attendance_status='PRESENT'):
@@ -285,6 +328,8 @@ def my_attendance(request):
         'attendance_records': attendance_records,
         'total_attended': total_attended,
         'total_absent': total_absent,
+        'total_events': total_events,
+        'attendance_rate': attendance_rate,
         'activity_points_earned': activity_points_earned,
     }
 

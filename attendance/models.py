@@ -108,6 +108,10 @@ class EventReport(models.Model):
         return report
 
 
+# ==========================================
+# SIGNALS FOR AUTOMATIC UPDATES
+# ==========================================
+
 # Signal to update activity points when attendance is marked
 @receiver(post_save, sender=Attendance)
 def update_student_activity_points(sender, instance, created, **kwargs):
@@ -116,3 +120,51 @@ def update_student_activity_points(sender, instance, created, **kwargs):
     """
     if instance.attendance_status == 'PRESENT':
         instance.student.update_activity_points()
+
+
+# Signal to update social score when attendance is marked
+@receiver(post_save, sender=Attendance)
+def update_student_social_score(sender, instance, created, **kwargs):
+    """
+    Update student's social score based on attendance:
+    - ABSENT: Decrease by 5% (for any event)
+    - PRESENT at non-activity event: Increase by 2.5%
+    - PRESENT at activity event: No social score change (only activity points)
+    """
+    from students.models import SocialScoreLog
+
+    student = instance.student
+    event = instance.event
+
+    if instance.attendance_status == 'ABSENT':
+        # Decrease social score by 5% for any absence
+        old_score = float(student.social_score)
+        student.decrease_social_score(5.00)
+
+        # Update the log with event reference
+        latest_log = student.social_score_logs.first()
+        if latest_log:
+            latest_log.event = event
+            latest_log.remarks = f"Marked absent from: {event.event_name}"
+            latest_log.save()
+
+        print(f"[Social Score] {student.usn}: {old_score}% → {student.social_score}% (ABSENT from {event.event_name})")
+
+    elif instance.attendance_status == 'PRESENT':
+        # Only increase score for non-activity events
+        if not event.has_activity_points():
+            old_score = float(student.social_score)
+            student.increase_social_score(2.50)
+
+            # Update the log with event reference
+            latest_log = student.social_score_logs.first()
+            if latest_log:
+                latest_log.event = event
+                latest_log.remarks = f"Marked present at: {event.event_name} (Non-Activity Event)"
+                latest_log.save()
+
+            print(
+                f"[Social Score] {student.usn}: {old_score}% → {student.social_score}% (PRESENT at non-activity: {event.event_name})")
+        else:
+            # Activity event - no social score change
+            print(f"[Social Score] {student.usn}: No change (PRESENT at activity event: {event.event_name})")

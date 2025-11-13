@@ -36,6 +36,12 @@
         padding: 1.5rem;
         border-radius: 0.5rem;
         box-shadow: var(--shadow-md);
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-2px);
     }
 
     .stat-card h3 {
@@ -52,11 +58,91 @@
         color: var(--primary-color);
     }
 
+    /* Simplified Social Score Card (matches stat-card style) */
+    .social-score-card {
+        background-color: var(--white);
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow-md);
+        transition: all 0.3s ease;
+    }
+
+    .social-score-card:hover {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-2px);
+    }
+
+    .social-score-card h3 {
+        font-size: 0.875rem;
+        color: var(--gray-600);
+        margin-bottom: 0.75rem;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .score-display {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .score-circle {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: conic-gradient(
+            var(--primary-color) calc(var(--score-percent) * 1%),
+            #e5e7eb calc(var(--score-percent) * 1%)
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--gray-900);
+        position: relative;
+    }
+
+    .score-circle::before {
+        content: '';
+        position: absolute;
+        width: 70px;
+        height: 70px;
+        background: white;
+        border-radius: 50%;
+    }
+
+    .score-value {
+        position: relative;
+        z-index: 1;
+    }
+
+    .score-info {
+        flex: 1;
+    }
+
+    .score-status {
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .score-message {
+        font-size: 0.75rem;
+        color: var(--gray-600);
+        line-height: 1.4;
+    }
+
+    .status-excellent { color: #10b981; }
+    .status-good { color: #f59e0b; }
+    .status-needs-improvement { color: #ef4444; }
+
     .info-card {
         background-color: var(--white);
         padding: 2rem;
         border-radius: 0.5rem;
         box-shadow: var(--shadow-md);
+        margin-top: 2rem;
     }
 
     .info-card h2 {
@@ -84,6 +170,43 @@
     .info-value {
         color: var(--gray-600);
     }
+
+    /* Alert Box */
+    .alert-box {
+        background-color: #fef3c7;
+        border-left: 4px solid #f59e0b;
+        padding: 1rem 1.5rem;
+        border-radius: 0.5rem;
+        margin-bottom: 2rem;
+        animation: slideIn 0.5s ease;
+    }
+
+    @keyframes slideIn {
+        from { transform: translateX(-20px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+
+    .alert-box.danger {
+        background-color: #fee2e2;
+        border-left-color: #ef4444;
+    }
+
+    .alert-box strong {
+        display: block;
+        margin-bottom: 0.25rem;
+        color: var(--gray-900);
+    }
+
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .score-display {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -99,28 +222,60 @@
         </div>
     </div>
 
+    {% if student.social_score < 98 %}
+    <div class="alert-box {% if student.social_score < 90 %}danger{% endif %}">
+        <strong>⚠️ Social Score Alert</strong>
+        {% if student.social_score < 90 %}
+        Your social score is below 90%. You cannot register for activity point events. Please attend non-activity events to improve your score.
+        {% else %}
+        Your social score is below 98%. You cannot register for activity point events. Attend {{ remaining_events }} more non-activity event(s) to reach 98%.
+        {% endif %}
+    </div>
+    {% endif %}
+
     <div class="stats-grid">
+        <!-- Social Score Card -->
+        <div class="social-score-card" style="--score-percent: {{ student.social_score }}">
+            <h3>🎯 Social Score</h3>
+            <div class="score-display">
+                <div class="score-circle">
+                    <span class="score-value">{{ student.social_score }}%</span>
+                </div>
+                <div class="score-info">
+                    {% if student.social_score >= 98 %}
+                    <div class="score-status status-excellent">✓ Excellent</div>
+                    <div class="score-message">You can participate in all events including activity point events!</div>
+                    {% elif student.social_score >= 90 %}
+                    <div class="score-status status-good">⚠ Good</div>
+                    <div class="score-message">Attend non-activity events to reach 98% and unlock activity point events.</div>
+                    {% else %}
+                    <div class="score-status status-needs-improvement">✗ Needs Improvement</div>
+                    <div class="score-message">Your score is low. Please attend non-activity events to improve.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Points Card -->
         <div class="stat-card">
             <h3>Total Activity Points</h3>
             <p>{{ student.total_activity_points }}</p>
         </div>
 
+        <!-- Active Registrations Card -->
         <div class="stat-card">
             <h3>Active Registrations</h3>
             <p>{{ student.get_active_registrations_count }}</p>
         </div>
 
+        <!-- Registration Limit Card -->
         <div class="stat-card">
             <h3>Registration Limit</h3>
             <p>{{ student.max_event_registrations }}</p>
         </div>
-
-        <div class="stat-card">
-            <h3>Semester</h3>
-            <p>{{ student.semester }}</p>
-        </div>
     </div>
 
+    <!-- Profile Information Card -->
     <div class="info-card">
         <h2>Profile Information</h2>
 
@@ -132,6 +287,11 @@
         <div class="info-row">
             <span class="info-label">Department:</span>
             <span class="info-value">{{ student.department }}</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Semester:</span>
+            <span class="info-value">{{ student.semester }}</span>
         </div>
 
         <div class="info-row">
@@ -170,5 +330,25 @@
             <span class="info-value">{{ student.created_at|date:"F d, Y" }}</span>
         </div>
     </div>
+
+
 </div>
+
+<script>
+    // Animate the score circle on page load
+    window.addEventListener('load', function() {
+        const circle = document.querySelector('.score-circle');
+        if (!circle) return;
+        let score = {{ student.social_score }};
+        let current = 0;
+        const step = () => {
+            if (current < score) {
+                current++;
+                circle.style.background = `conic-gradient(var(--primary-color) ${current}%, #e5e7eb ${current}%)`;
+                requestAnimationFrame(step);
+            }
+        };
+        requestAnimationFrame(step);
+    });
+</script>
 {% endblock %}

@@ -47,6 +47,12 @@ class Student(models.Model):
     address = models.TextField(blank=True, null=True)
     max_event_registrations = models.IntegerField(default=10)
     total_activity_points = models.IntegerField(default=0)
+    social_score = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=100.00,
+        help_text='Social score percentage (100.00 by default)'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
@@ -105,3 +111,106 @@ class Student(models.Model):
         """Update total activity points"""
         self.total_activity_points = self.calculate_activity_points()
         self.save()
+
+    def can_register_for_activity_event(self):
+        """Check if student can register for activity points events based on social score"""
+        return float(self.social_score) >= 98.00
+
+    def decrease_social_score(self, amount=5.00):
+        """Decrease social score by specified amount (default 5%)"""
+        new_score = float(self.social_score) - amount
+        # Ensure score doesn't go below 0
+        self.social_score = max(0.00, new_score)
+        self.save()
+
+        # Log the change
+        SocialScoreLog.objects.create(
+            student=self,
+            change_amount=-amount,
+            new_score=self.social_score,
+            reason='ABSENT_FROM_EVENT'
+        )
+
+    def increase_social_score(self, amount=2.50):
+        """Increase social score by specified amount (default 2.5%)"""
+        new_score = float(self.social_score) + amount
+        # Cap at 100%
+        self.social_score = min(100.00, new_score)
+        self.save()
+
+        # Log the change
+        SocialScoreLog.objects.create(
+            student=self,
+            change_amount=amount,
+            new_score=self.social_score,
+            reason='PRESENT_AT_NON_ACTIVITY_EVENT'
+        )
+
+    def get_social_score_status(self):
+        """Get social score status description"""
+        score = float(self.social_score)
+        if score >= 98.00:
+            return {
+                'status': 'EXCELLENT',
+                'color': 'success',
+                'message': 'You can participate in all events!'
+            }
+        elif score >= 90.00:
+            return {
+                'status': 'GOOD',
+                'color': 'warning',
+                'message': 'Attend non-activity events to increase your score to 98% or above.'
+            }
+        else:
+            return {
+                'status': 'NEEDS_IMPROVEMENT',
+                'color': 'danger',
+                'message': 'Your social score is low. Please attend non-activity events to improve.'
+            }
+
+
+class SocialScoreLog(models.Model):
+    """
+    Track all social score changes with reasons
+    """
+    REASON_CHOICES = [
+        ('ABSENT_FROM_EVENT', 'Marked Absent from Event'),
+        ('PRESENT_AT_NON_ACTIVITY_EVENT', 'Present at Non-Activity Event'),
+        ('MANUAL_ADJUSTMENT', 'Manual Adjustment'),
+    ]
+
+    log_id = models.AutoField(primary_key=True)
+    student = models.ForeignKey(
+        Student,
+        on_delete=models.CASCADE,
+        related_name='social_score_logs'
+    )
+    change_amount = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        help_text='Positive for increase, negative for decrease'
+    )
+    new_score = models.DecimalField(max_digits=5, decimal_places=2)
+    reason = models.CharField(max_length=50, choices=REASON_CHOICES)
+    event = models.ForeignKey(
+        'events.Event',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='social_score_changes'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    remarks = models.TextField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'social_score_logs'
+        verbose_name = 'Social Score Log'
+        verbose_name_plural = 'Social Score Logs'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.student.get_full_name()} - {self.change_amount:+.2f}% - {self.get_reason_display()}"
+
+    def get_change_display(self):
+        """Get formatted change amount"""
+        return f"{self.change_amount:+.2f}%"
