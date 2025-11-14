@@ -1,0 +1,501 @@
+{% extends 'base.html' %}
+
+{% block title %}CRONOZ AI Assistant{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #6a11cb;
+        --secondary: #2575fc;
+        --bg: #eef1f7;
+        --chat-bg: #ffffff;
+        --ai-bg: #f0f4ff;
+        --user-bg: #6a11cb;
+    }
+
+    body {
+        background: linear-gradient(135deg, #6a11cb22, #2575fc22);
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .cronoz-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1rem;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* HEADER */
+    .cronoz-header {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        padding: 1.8rem;
+        border-radius: 1.5rem;
+        color: white;
+        box-shadow: 0px 8px 20px rgba(0,0,0,0.15);
+        animation: fadeDown 0.6s ease;
+    }
+
+    @keyframes fadeDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .cronoz-logo {
+        width: 60px;
+        height: 60px;
+        background: white;
+        color: var(--primary);
+        font-size: 2rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 10px rgba(255,255,255,0.4);
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.08); }
+        100% { transform: scale(1);}
+    }
+
+    /* CHAT BOX */
+    .chat-container {
+        flex: 1;
+        margin-top: 1rem;
+        background: var(--chat-bg);
+        border-radius: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0px 8px 20px rgba(0,0,0,0.1);
+        overflow: hidden;
+        animation: fadeUp 0.6s ease;
+    }
+
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .chat-messages {
+        flex: 1;
+        padding: 2rem;
+        overflow-y: auto;
+        background: var(--bg);
+    }
+
+    /* MESSAGE BUBBLES */
+    .message {
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: flex-end;
+        animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+        margin-right: 0.8rem;
+    }
+
+    .message-ai .message-avatar {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+    }
+
+    .message-user {
+        justify-content: flex-end;
+    }
+
+    .message-user .message-avatar {
+        background: var(--user-bg);
+        margin-left: 0.8rem;
+        order: 2;
+    }
+
+    .message-bubble {
+        max-width: 70%;
+        padding: 1rem 1.3rem;
+        border-radius: 1.2rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.08);
+    }
+
+    .message-ai .message-bubble {
+        background: var(--ai-bg);
+        border-bottom-left-radius: 0.3rem;
+    }
+
+    .message-user .message-bubble {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        border-bottom-right-radius: 0.3rem;
+    }
+
+    /* TYPING INDICATOR */
+    .typing-indicator {
+        padding: 0.7rem 1.2rem;
+        background: var(--ai-bg);
+        border-radius: 1rem;
+        width: fit-content;
+    }
+
+    .typing-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--primary);
+        display: inline-block;
+        margin-right: 5px;
+        animation: blink 1.4s infinite both;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes blink {
+        0% { opacity: .2; }
+        20% { opacity: 1; }
+        100% { opacity: .2; }
+    }
+
+    /* INPUT BAR */
+    .chat-input-container {
+        padding: 1.2rem;
+        background: white;
+        border-top: 1px solid #e6e6e6;
+    }
+
+    .chat-input-wrapper {
+        background: #f4f4f7;
+        border-radius: 2.5rem;
+        padding: 0.5rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        border: 2px solid transparent;
+        transition: 0.3s;
+    }
+
+    .chat-input-wrapper:focus-within {
+        border-color: var(--primary);
+        box-shadow: 0px 4px 12px rgba(102, 126, 234, 0.2);
+    }
+
+    .chat-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        padding: 0.8rem;
+        font-size: 1rem;
+        outline: none;
+    }
+
+    .send-button {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border: none;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        color: white;
+        cursor: pointer;
+        transition: 0.3s;
+        box-shadow: 0px 6px 14px rgba(0,0,0,0.2);
+    }
+
+    .send-button:hover {
+        transform: scale(1.1);
+    }
+
+    /* QUICK ACTIONS */
+    .quick-actions {
+        background: white;
+        padding: 0.5rem 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .quick-action-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 1rem;
+        border: 1px solid #dcdcdc;
+        background: #fafafa;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: 0.3s;
+    }
+
+    .quick-action-btn:hover {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        border-color: transparent;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cronoz-container">
+    <div class="cronoz-header">
+        <h1>
+            <div class="cronoz-logo">🤖</div>
+            CRONOZ AI Assistant
+        </h1>
+        <p>Your intelligent event management companion | Logged in as: {{ user_name }}</p>
+    </div>
+
+    <div class="chat-container">
+        <div class="chat-messages" id="chatMessages">
+            <div class="welcome-message">
+                <h2>👋 Hello, {{ user_name }}!</h2>
+                <p>I'm CRONOZ, your AI assistant. I'm here to help you with:</p>
+                <ul style="list-style: none; padding: 0; margin: 1rem 0;">
+                    {% if user_type == 'student' %}
+                    <li>📊 Improving your social score</li>
+                    <li>🎯 Finding the best events for you</li>
+                    <li>⭐ Maximizing your activity points</li>
+                    <li>💡 Answering any questions about events</li>
+                    {% elif user_type == 'club_member' %}
+                    <li>💡 Suggesting innovative event ideas</li>
+                    <li>⏰ Optimizing event timing</li>
+                    <li>📈 Improving event attendance</li>
+                    <li>🎯 Club management strategies</li>
+                    {% elif user_type == 'faculty' %}
+                    <li>📊 Analyzing club performance</li>
+                    <li>🔍 Identifying improvement areas</li>
+                    <li>💡 Strategic recommendations</li>
+                    <li>📈 Resource allocation guidance</li>
+                    {% endif %}
+                </ul>
+                <p><strong>Ask me anything or use the quick actions below!</strong></p>
+            </div>
+        </div>
+
+        <div class="quick-actions" id="quickActions">
+            {% if user_type == 'student' %}
+            <button class="quick-action-btn" onclick="sendQuickQuestion('How can I improve my social score?')">
+                📊 Improve Social Score
+            </button>
+            <button class="quick-action-btn" onclick="sendQuickQuestion('What events should I attend this week?')">
+                🎯 Event Recommendations
+            </button>
+            <button class="quick-action-btn" onclick="sendQuickQuestion('How do I earn more activity points?')">
+                ⭐ Activity Points Tips
+            </button>
+            {% elif user_type == 'club_member' %}
+            <button class="quick-action-btn" onclick="sendQuickQuestion('Suggest some creative event ideas')">
+                💡 Event Ideas
+            </button>
+            <button class="quick-action-btn" onclick="sendQuickQuestion('What is the best time to organize events?')">
+                ⏰ Best Timing
+            </button>
+            <button class="quick-action-btn" onclick="sendQuickQuestion('How to increase event attendance?')">
+                📈 Boost Attendance
+            </button>
+            {% elif user_type == 'faculty' %}
+            <button class="quick-action-btn" onclick="sendQuickQuestion('Analyze performance of my clubs')">
+                📊 Club Performance
+            </button>
+            <button class="quick-action-btn" onclick="sendQuickQuestion('Which clubs need improvement?')">
+                🔍 Identify Issues
+            </button>
+            <button class="quick-action-btn" onclick="sendQuickQuestion('Give me strategic recommendations')">
+                💡 Get Recommendations
+            </button>
+            {% endif %}
+        </div>
+
+        <div class="chat-input-container">
+            <div class="chat-input-wrapper">
+                <input 
+                    type="text" 
+                    class="chat-input" 
+                    id="chatInput" 
+                    placeholder="Ask CRONOZ anything..."
+                    onkeypress="handleKeyPress(event)"
+                >
+                <button class="send-button" id="sendButton" onclick="sendMessage()">
+                    ➤
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const userType = '{{ user_type }}';
+    const userName = '{{ user_name }}';
+    let isWaiting = false;
+
+    function addMessage(text, isUser = false) {
+        const messagesContainer = document.getElementById('chatMessages');
+        
+        // Remove welcome message if exists
+        const welcomeMsg = messagesContainer.querySelector('.welcome-message');
+        if (welcomeMsg) {
+            welcomeMsg.remove();
+        }
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${isUser ? 'message-user' : 'message-ai'}`;
+        
+        const avatar = document.createElement('div');
+        avatar.className = 'message-avatar';
+        avatar.textContent = isUser ? userName.charAt(0).toUpperCase() : '🤖';
+        
+        const bubble = document.createElement('div');
+        bubble.className = 'message-bubble';
+        bubble.innerHTML = text.replace(/\n/g, '<br>');
+        
+        messageDiv.appendChild(avatar);
+        messageDiv.appendChild(bubble);
+        messagesContainer.appendChild(messageDiv);
+        
+        // Scroll to bottom
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function showTyping() {
+        const messagesContainer = document.getElementById('chatMessages');
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message message-ai';
+        typingDiv.id = 'typingIndicator';
+        
+        const avatar = document.createElement('div');
+        avatar.className = 'message-avatar';
+        avatar.textContent = '🤖';
+        
+        const typingBubble = document.createElement('div');
+        typingBubble.className = 'typing-indicator active';
+        typingBubble.innerHTML = `
+            <div class="typing-dots">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        `;
+        
+        typingDiv.appendChild(avatar);
+        typingDiv.appendChild(typingBubble);
+        messagesContainer.appendChild(typingDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function hideTyping() {
+        const typingIndicator = document.getElementById('typingIndicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('chatInput');
+        const sendButton = document.getElementById('sendButton');
+        const question = input.value.trim();
+
+        if (!question || isWaiting) return;
+
+        // Add user message
+        addMessage(question, true);
+        input.value = '';
+
+        // Disable input
+        isWaiting = true;
+        sendButton.disabled = true;
+        input.disabled = true;
+
+        // Show typing indicator
+        showTyping();
+
+        try {
+            // Fix endpoint for club members
+            let endpointType = userType;
+            if (userType === 'club_member') {
+                endpointType = 'club';  // API uses 'club' not 'club_member'
+            }
+
+            const endpoint = `/cronoz/api/${endpointType}/chat/`;
+
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ question })
+            });
+
+            const data = await response.json();
+
+            hideTyping();
+
+            if (data.success) {
+                addMessage(data.response, false);
+            } else {
+                addMessage('Sorry, I encountered an error: ' + (data.error || 'Unknown error'), false);
+            }
+        } catch (error) {
+            hideTyping();
+            addMessage('Sorry, I could not connect to CRONOZ AI. Error: ' + error.message, false);
+            console.error('CRONOZ Error:', error);
+        } finally {
+            isWaiting = false;
+            sendButton.disabled = false;
+            input.disabled = false;
+            input.focus();
+        }
+    }
+
+    function sendQuickQuestion(question) {
+        const input = document.getElementById('chatInput');
+        input.value = question;
+        sendMessage();
+    }
+
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Focus input on load
+    window.addEventListener('load', () => {
+        document.getElementById('chatInput').focus();
+    });
+</script>
+{% endblock %}

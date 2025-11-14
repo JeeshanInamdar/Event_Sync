@@ -23,9 +23,13 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = []
 
+# CRONOZ AI Configuration
+GEMINI_API_KEY = config('GEMINI_API_KEY')
+CRONOZ_ENABLED = True
+CRONOZ_CACHE_TIMEOUT = 300
+CRONOZ_MAX_RETRIES = 3
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -40,6 +44,7 @@ INSTALLED_APPS = [
     'clubs',
     'events',
     'attendance',
+    'cronoz',
 ]
 
 MIDDLEWARE = [
@@ -145,7 +150,6 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = f'Event Assistant <{config("EMAIL_HOST_USER")}>'
-
 
 # Session Configuration
 SESSION_COOKIE_AGE = 86400  # 24 hours in seconds

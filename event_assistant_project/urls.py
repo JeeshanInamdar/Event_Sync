@@ -15,6 +15,7 @@ urlpatterns = [
     path('faculty/', include('faculty.urls')),
     path('club/', include('clubs.urls')),
     path('events/', include('events.urls')),
+    path('cronoz/', include('cronoz.urls')),
 ]
 
 # Serve static and media files in development
