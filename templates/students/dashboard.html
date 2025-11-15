@@ -23,6 +23,7 @@
         z-index: 9999;
         box-shadow: 0 6px 18px rgba(0,0,0,0.3);
         transition: transform 0.2s ease;
+        user-select: none;
     }
 
     .cronoz-floating-btn:active {
@@ -103,6 +104,23 @@
         border-radius: 12px;
         margin-bottom: 12px;
         border-left: 4px solid #667eea;
+        line-height: 1.6;
+    }
+
+    .cronoz-suggestion-card h4 {
+        margin-top: 0;
+        color: #667eea;
+        font-size: 1rem;
+    }
+
+    .cronoz-suggestion-card strong {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .cronoz-suggestion-card em {
+        font-style: italic;
+        color: #555;
     }
 
     @media (max-width: 500px) {
@@ -306,82 +324,6 @@
         color: var(--gray-900);
     }
 
-    /* CRONOZ Suggestions Styling */
-    .cronoz-suggestions {
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white;
-        padding: 2rem;
-        border-radius: 1rem;
-        margin-top: 2rem;
-        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-        animation: fadeInUp 0.6s ease;
-    }
-
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .cronoz-suggestions h3 {
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .suggestion-box {
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(10px);
-        padding: 1.5rem;
-        border-radius: 0.75rem;
-        margin-top: 1rem;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        transition: all 0.3s ease;
-    }
-
-    .suggestion-box:hover {
-        background: rgba(255, 255, 255, 0.25);
-        transform: translateX(5px);
-    }
-
-    .suggestion-box h4 {
-        font-size: 1.125rem;
-        margin-bottom: 0.75rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .suggestion-box p {
-        line-height: 1.6;
-        opacity: 0.95;
-        margin: 0;
-    }
-
-    .cronoz-loading {
-        text-align: center;
-        padding: 2rem;
-        color: rgba(255, 255, 255, 0.8);
-    }
-
-    .cronoz-loading::after {
-        content: '...';
-        animation: dots 1.5s infinite;
-    }
-
-    @keyframes dots {
-        0%, 20% { content: '.'; }
-        40% { content: '..'; }
-        60%, 100% { content: '...'; }
-    }
-
     @media (max-width: 768px) {
         .stats-grid {
             grid-template-columns: 1fr;
@@ -404,11 +346,15 @@
             <a href="{% url 'student_profile' %}" class="btn btn-primary btn-small">
                 ✏️ Edit Profile
             </a>
-            <!-- Floating CRONOZ AI Button -->
-            <div id="cronozFloatingBtn" class="cronoz-floating-btn">
-                🤖
-            </div>
+            <a href="{% url 'cronoz:chat_interface' %}" class="btn btn-success btn-small">
+            🤖 Ask CRONOZ AI
+            </a>
         </div>
+    </div>
+
+    <!-- Floating CRONOZ AI Button -->
+    <div id="cronozFloatingBtn" class="cronoz-floating-btn">
+        🤖
     </div>
 
     {% if student.social_score < 98 %}
@@ -461,16 +407,6 @@
         <div class="stat-card">
             <h3>Registration Limit</h3>
             <p>{{ student.max_event_registrations }}</p>
-        </div>
-    </div>
-
-    <!-- CRONOZ AI Auto-Suggestions -->
-    <div id="cronozSuggestions" style="display: none;">
-        <div class="cronoz-suggestions">
-            <h3>🤖 CRONOZ AI Suggestions</h3>
-            <div id="suggestionContent">
-                <div class="cronoz-loading">Loading personalized suggestions</div>
-            </div>
         </div>
     </div>
 
@@ -529,10 +465,11 @@
             <span class="info-value">{{ student.created_at|date:"F d, Y" }}</span>
         </div>
     </div>
+
     <!-- CRONOZ AI Popup Panel -->
     <div id="cronozPopup" class="cronoz-popup">
         <div class="cronoz-popup-header">
-            <span>CRONOZ AI Assistant</span>
+            <span>🤖 CRONOZ AI Assistant</span>
             <button id="cronozCloseBtn" class="close-btn">×</button>
         </div>
         <div id="cronozPopupContent" class="cronoz-popup-content">
@@ -567,27 +504,93 @@ window.addEventListener("load", function () {
 });
 
 /* ============================================================
-   2) Floating Button Drag Feature
+   2) Floating Button - Click vs Drag Detection
 ============================================================ */
 const btn = document.getElementById("cronozFloatingBtn");
-let offsetX, offsetY;
+let isDragging = false;
+let startX, startY;
+let hasMoved = false;
 
 btn.addEventListener("mousedown", function (e) {
-    offsetX = e.clientX - btn.offsetLeft;
-    offsetY = e.clientY - btn.offsetTop;
+    isDragging = true;
+    hasMoved = false;
+    startX = e.clientX;
+    startY = e.clientY;
+
+    const offsetX = e.clientX - btn.offsetLeft;
+    const offsetY = e.clientY - btn.offsetTop;
 
     function move(e2) {
-        btn.style.left = `${e2.clientX - offsetX}px`;
-        btn.style.top = `${e2.clientY - offsetY}px`;
+        if (!isDragging) return;
+
+        // Calculate distance moved
+        const distX = Math.abs(e2.clientX - startX);
+        const distY = Math.abs(e2.clientY - startY);
+
+        // If moved more than 5px, it's a drag
+        if (distX > 5 || distY > 5) {
+            hasMoved = true;
+            btn.style.left = `${e2.clientX - offsetX}px`;
+            btn.style.top = `${e2.clientY - offsetY}px`;
+            btn.style.right = 'auto';
+            btn.style.bottom = 'auto';
+        }
     }
 
     function stop() {
+        isDragging = false;
+
+        // If didn't move, it's a click - open popup
+        if (!hasMoved) {
+            openPopup();
+        }
+
         window.removeEventListener("mousemove", move);
         window.removeEventListener("mouseup", stop);
     }
 
     window.addEventListener("mousemove", move);
     window.addEventListener("mouseup", stop);
+});
+
+// Touch support for mobile
+btn.addEventListener("touchstart", function (e) {
+    isDragging = true;
+    hasMoved = false;
+    const touch = e.touches[0];
+    startX = touch.clientX;
+    startY = touch.clientY;
+
+    const offsetX = touch.clientX - btn.offsetLeft;
+    const offsetY = touch.clientY - btn.offsetTop;
+
+    function move(e2) {
+        if (!isDragging) return;
+        const touch = e2.touches[0];
+
+        const distX = Math.abs(touch.clientX - startX);
+        const distY = Math.abs(touch.clientY - startY);
+
+        if (distX > 5 || distY > 5) {
+            hasMoved = true;
+            btn.style.left = `${touch.clientX - offsetX}px`;
+            btn.style.top = `${touch.clientY - offsetY}px`;
+            btn.style.right = 'auto';
+            btn.style.bottom = 'auto';
+        }
+    }
+
+    function stop() {
+        isDragging = false;
+        if (!hasMoved) {
+            openPopup();
+        }
+        window.removeEventListener("touchmove", move);
+        window.removeEventListener("touchend", stop);
+    }
+
+    window.addEventListener("touchmove", move);
+    window.addEventListener("touchend", stop);
 });
 
 /* ============================================================
@@ -597,7 +600,7 @@ const popup = document.getElementById("cronozPopup");
 const overlay = document.getElementById("cronozOverlay");
 const closeBtn = document.getElementById("cronozCloseBtn");
 
-btn.addEventListener("click", () => {
+function openPopup() {
     popup.classList.add("show");
     overlay.style.display = "block";
 
@@ -606,7 +609,7 @@ btn.addEventListener("click", () => {
     }, 10);
 
     loadCronozAISuggestions();
-});
+}
 
 closeBtn.addEventListener("click", closePopup);
 overlay.addEventListener("click", closePopup);
@@ -621,7 +624,31 @@ function closePopup() {
 }
 
 /* ============================================================
-   4) Load CRONOZ AI Suggestions (Popup)
+   4) Convert Markdown-style Text to HTML
+============================================================ */
+function formatMarkdownText(text) {
+    if (!text) return text;
+
+    // Convert **bold** to <strong>
+    text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+    // Convert *italic* to <em>
+    text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+    // Convert line breaks
+    text = text.replace(/\n/g, '<br>');
+
+    // Convert numbered lists (1. 2. 3.)
+    text = text.replace(/^(\d+)\.\s+(.+)$/gm, '<div style="margin-left: 20px;">$1. $2</div>');
+
+    // Convert bullet points (- or *)
+    text = text.replace(/^[-*]\s+(.+)$/gm, '<div style="margin-left: 20px;">• $1</div>');
+
+    return text;
+}
+
+/* ============================================================
+   5) Load CRONOZ AI Suggestions (Popup)
 ============================================================ */
 async function loadCronozAISuggestions() {
     const container = document.getElementById("cronozPopupContent");
@@ -636,27 +663,30 @@ async function loadCronozAISuggestions() {
 
         if (data.success) {
             if (data.suggestions.social_score) {
+                const formattedText = formatMarkdownText(data.suggestions.social_score);
                 html += `
                     <div class="cronoz-suggestion-card">
                         <h4>📊 Social Score Advice</h4>
-                        <p>${data.suggestions.social_score.replace(/\n/g, "<br>")}</p>
+                        <p>${formattedText}</p>
                     </div>
                 `;
             }
 
             if (data.suggestions.events) {
+                const formattedText = formatMarkdownText(data.suggestions.events);
                 html += `
                     <div class="cronoz-suggestion-card">
                         <h4>🎯 Recommended Events</h4>
-                        <p>${data.suggestions.events.replace(/\n/g, "<br>")}</p>
+                        <p>${formattedText}</p>
                     </div>
                 `;
             }
         }
 
-        container.innerHTML = html || `<p>No suggestions available.</p>`;
+        container.innerHTML = html || `<p>No suggestions available at the moment.</p>`;
     } catch (err) {
-        container.innerHTML = `<p>Error loading suggestions.</p>`;
+        console.error('CRONOZ Error:', err);
+        container.innerHTML = `<p style="color: #ef4444;">Error loading suggestions. Please try again.</p>`;
     }
 }
 </script>
