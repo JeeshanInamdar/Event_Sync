@@ -4,156 +4,87 @@
 
 {% block extra_css %}
 <style>
+    :root {
+        --primary-color: #4f46e5;
+        --primary-dark: #4338ca;
+        --gray-900: #1f2937;
+        --gray-600: #4b5563;
+        --gray-500: #6b7280;
+        --gray-200: #e5e7eb;
+        --gray-50: #f9fafb;
+        --white: #ffffff;
+        --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+
     .faculty-dashboard {
         max-width: 1400px;
         margin: 0 auto;
-        padding: 2rem;
+        padding: 1rem;
     }
 
     .dashboard-header {
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
     }
 
     .dashboard-header h1 {
-        font-size: 2rem;
-        color: var(--gray-900);
-        margin-bottom: 0.5rem;
-    }
-
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .stat-card {
-        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-        color: var(--white);
-        padding: 2rem;
-        border-radius: 0.5rem;
-        box-shadow: var(--shadow-lg);
-    }
-
-    .stat-card h3 {
-        font-size: 0.875rem;
-        margin-bottom: 0.5rem;
-        opacity: 0.9;
-        text-transform: uppercase;
-        font-weight: 600;
-    }
-
-    .stat-card p {
-        font-size: 2.5rem;
-        font-weight: 700;
-    }
-
-    .section {
-        background-color: var(--white);
-        border-radius: 0.5rem;
-        box-shadow: var(--shadow-md);
-        padding: 2rem;
-        margin-bottom: 2rem;
-    }
-
-    .section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid var(--gray-200);
-    }
-
-    .section-header h2 {
         font-size: 1.5rem;
         color: var(--gray-900);
+        margin-bottom: 0.5rem;
     }
 
-    .clubs-grid {
+    .dashboard-header p {
+        color: var(--gray-600);
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+    }
+
+    .header-actions {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-        gap: 1.5rem;
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
     }
 
-    .club-card {
-        border: 2px solid var(--gray-200);
-        border-radius: 0.5rem;
-        padding: 1.5rem;
-        transition: all 0.3s ease;
-    }
-
-    .club-card:hover {
-        border-color: var(--primary-color);
-        box-shadow: var(--shadow-lg);
-    }
-
-    .club-card h3 {
-        font-size: 1.25rem;
-        color: var(--gray-900);
-        margin-bottom: 1rem;
-    }
-
-    .club-stats {
-        display: flex;
-        gap: 2rem;
-        margin-bottom: 1rem;
-        color: var(--gray-600);
-        font-size: 0.875rem;
-    }
-
-    .club-head {
-        background-color: var(--gray-50);
-        padding: 0.75rem;
-        border-radius: 0.25rem;
-        margin-bottom: 1rem;
-        font-size: 0.875rem;
-    }
-
-    .club-actions {
-        display: flex;
-        gap: 0.5rem;
-        margin-top: 1rem;
-    }
-
-    .club-actions .btn {
-        flex: 1;
-    }
-
-    .event-list {
-        list-style: none;
-    }
-
-    .event-item {
-        padding: 1rem;
-        border-bottom: 1px solid var(--gray-200);
-        display: flex;
-        justify-content: space-between;
+    .btn {
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 0.9375rem;
+        font-weight: 500;
+        display: inline-flex;
         align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
     }
 
-    .event-item:last-child {
-        border-bottom: none;
+    .btn-primary {
+        background: var(--primary-color);
+        color: white;
     }
 
-    .event-info h4 {
-        font-size: 1rem;
-        color: var(--gray-900);
-        margin-bottom: 0.25rem;
+    .btn-primary:hover {
+        background: var(--primary-dark);
     }
 
-    .event-meta {
-        font-size: 0.875rem;
-        color: var(--gray-600);
+    .btn-secondary {
+        background: var(--gray-600);
+        color: white;
     }
 
-    .event-badge {
-        padding: 0.25rem 0.75rem;
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        background-color: #dbeafe;
-        color: #1e40af;
+    .btn-secondary:hover {
+        background: #4b5563;
+    }
+
+    .btn-success {
+        background: #10b981;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background: #059669;
     }
 
     .btn-transfer {
@@ -166,13 +97,256 @@
         background-color: #d97706;
     }
 
-    @media (max-width: 768px) {
-        .clubs-grid {
-            grid-template-columns: 1fr;
+    .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: var(--white);
+        padding: 1.25rem;
+        border-radius: 8px;
+        box-shadow: var(--shadow-md);
+        text-align: center;
+    }
+
+    .stat-card h3 {
+        font-size: 0.8125rem;
+        margin-bottom: 0.5rem;
+        opacity: 0.95;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .stat-card p {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .section {
+        background-color: var(--white);
+        border-radius: 8px;
+        box-shadow: var(--shadow-md);
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .section-header {
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--gray-200);
+    }
+
+    .section-header h2 {
+        font-size: 1.125rem;
+        color: var(--gray-900);
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+    }
+
+    .clubs-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    .club-card {
+        border: 2px solid var(--gray-200);
+        border-radius: 8px;
+        padding: 1.25rem;
+        transition: all 0.2s ease;
+    }
+
+    .club-card:active {
+        border-color: var(--primary-color);
+        box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
+    }
+
+    .club-card h3 {
+        font-size: 1.125rem;
+        color: var(--gray-900);
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+    }
+
+    .club-stats {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+        color: var(--gray-600);
+        font-size: 0.875rem;
+    }
+
+    .club-head {
+        background-color: var(--gray-50);
+        padding: 0.75rem;
+        border-radius: 6px;
+        margin-bottom: 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    .club-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem 1rem;
+    }
+
+    .empty-state p {
+        color: var(--gray-500);
+        margin-bottom: 1rem;
+        font-size: 1rem;
+    }
+
+    .event-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .event-item {
+        padding: 1rem;
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .event-item:last-child {
+        border-bottom: none;
+    }
+
+    .event-info h4 {
+        font-size: 1rem;
+        color: var(--gray-900);
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .event-meta {
+        font-size: 0.8125rem;
+        color: var(--gray-600);
+        line-height: 1.6;
+    }
+
+    .event-badge {
+        display: inline-block;
+        padding: 0.375rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        background-color: #dbeafe;
+        color: #1e40af;
+        margin-top: 0.5rem;
+    }
+
+    /* Tablet */
+    @media (min-width: 640px) {
+        .faculty-dashboard {
+            padding: 1.5rem;
+        }
+
+        .dashboard-header h1 {
+            font-size: 1.875rem;
+        }
+
+        .dashboard-header p {
+            font-size: 0.9375rem;
+        }
+
+        .header-actions {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .section {
+            padding: 1.75rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.25rem;
+            margin-bottom: 0;
+        }
+
+        .club-stats {
+            flex-direction: row;
+            gap: 1.5rem;
         }
 
         .club-actions {
-            flex-direction: column;
+            flex-direction: row;
+        }
+
+        .event-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .event-info h4 {
+            margin-bottom: 0.25rem;
+        }
+
+        .event-badge {
+            margin-top: 0;
+        }
+    }
+
+    /* Desktop */
+    @media (min-width: 1024px) {
+        .faculty-dashboard {
+            padding: 2rem;
+        }
+
+        .dashboard-header h1 {
+            font-size: 2rem;
+        }
+
+        .stat-card {
+            padding: 2rem;
+        }
+
+        .stat-card p {
+            font-size: 2.5rem;
+        }
+
+        .section {
+            padding: 2rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.5rem;
+        }
+
+        .clubs-grid {
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .club-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .club-card h3 {
+            font-size: 1.25rem;
         }
     }
 </style>
@@ -183,7 +357,7 @@
     <div class="dashboard-header">
         <h1>Welcome, {{ faculty.first_name }}!</h1>
         <p>Faculty Code: {{ faculty.faculty_code }} | Department: {{ faculty.department }}</p>
-        <div style="margin-top: 1rem; display: flex; gap: 1rem;">
+        <div class="header-actions">
             <a href="{% url 'faculty_profile' %}" class="btn btn-secondary">
                 ✏️ Edit Profile
             </a>
@@ -256,11 +430,9 @@
             {% endfor %}
         </div>
         {% else %}
-        <div style="text-align: center; padding: 3rem;">
-            <p style="color: var(--gray-500); margin-bottom: 1.5rem; font-size: 1.125rem;">
-                You are not managing any clubs yet.
-            </p>
-            <a href="{% url 'create_club' %}" class="btn btn-primary btn-lg">
+        <div class="empty-state">
+            <p>You are not managing any clubs yet.</p>
+            <a href="{% url 'create_club' %}" class="btn btn-primary">
                 ➕ Create Your First Club
             </a>
         </div>

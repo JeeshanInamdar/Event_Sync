@@ -131,8 +131,7 @@ class CronozAI:
         - Current Activity Points: {student.total_activity_points}
         - Social Score: {student.social_score}%
         - Previously Attended Clubs: {', '.join(preferred_clubs) if preferred_clubs else 'None yet'}
-
-        Upcoming Events:
+        - Upcoming Events: {upcoming_events}
         """
 
         for idx, event in enumerate(upcoming_events, 1):
@@ -159,6 +158,13 @@ class CronozAI:
         """
         Answer general student questions with context
         """
+        from events.models import Event
+
+        # Get upcoming events
+        upcoming_events = Event.objects.filter(
+            event_status='SCHEDULED',
+            event_date__gte=timezone.now().date()
+        ).order_by('event_date')[:]
         context = f"""
         You are CRONOZ, an AI assistant for an event management system.
 
@@ -168,6 +174,7 @@ class CronozAI:
         - Social Score: {student.social_score}%
         - Activity Points: {student.total_activity_points}
         - Active Registrations: {student.get_active_registrations_count()}/{student.max_event_registrations}
+        - Upcoming Event List: {upcoming_events}
 
         System Rules:
         - Social score starts at 100%

@@ -154,7 +154,7 @@ DEFAULT_FROM_EMAIL = f'Event Assistant <{config("EMAIL_HOST_USER")}>'
 # Session Configuration
 SESSION_COOKIE_AGE = 86400  # 24 hours in seconds
 SESSION_SAVE_EVERY_REQUEST = True
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 
 # Login URLs

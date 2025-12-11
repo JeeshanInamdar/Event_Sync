@@ -5,7 +5,182 @@
 {% block extra_css %}
 <style>
     .auth-container {
+        min-height: calc(100vh - 120px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+
+    .auth-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        width: 100%;
         max-width: 700px;
+        padding: 1.5rem;
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .auth-header h1 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+    }
+
+    .auth-header p {
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+    }
+
+    .required {
+        color: #ef4444;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+        width: 100%;
+        padding: 0.75rem;
+        font-size: 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        transition: border-color 0.2s;
+        font-family: inherit;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+        outline: none;
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .form-input.error,
+    .form-select.error,
+    .form-textarea.error {
+        border-color: #ef4444;
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    .form-help {
+        display: block;
+        font-size: 0.8125rem;
+        color: #6b7280;
+        margin-top: 0.375rem;
+    }
+
+    .form-error {
+        display: block;
+        font-size: 0.875rem;
+        color: #ef4444;
+        margin-top: 0.375rem;
+        min-height: 1.25rem;
+    }
+
+    .btn {
+        font-size: 1rem;
+        font-weight: 500;
+        padding: 0.75rem;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        min-height: 48px;
+    }
+
+    .btn-primary {
+        background: #4f46e5;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #4338ca;
+    }
+
+    .btn-primary:active {
+        background: #3730a3;
+    }
+
+    .btn-block {
+        width: 100%;
+    }
+
+    .auth-footer {
+        text-align: center;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .auth-footer p {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin: 0;
+    }
+
+    .auth-footer a {
+        color: #4f46e5;
+        text-decoration: none;
+    }
+
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+
+    /* Tablet and larger */
+    @media (min-width: 640px) {
+        .auth-card {
+            padding: 2rem;
+        }
+
+        .auth-header h1 {
+            font-size: 1.875rem;
+        }
+
+        .auth-header p {
+            font-size: 1rem;
+        }
+
+        .form-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    /* Desktop */
+    @media (min-width: 1024px) {
+        .auth-container {
+            padding: 2rem;
+        }
     }
 </style>
 {% endblock %}
@@ -20,20 +195,22 @@
 
         <form method="POST" action="{% url 'student_register' %}" id="registerForm">
             {% csrf_token %}
-            
+
             <!-- USN -->
             <div class="form-group">
                 <label for="usn" class="form-label">
                     USN <span class="required">*</span>
                 </label>
-                <input 
-                    type="text" 
-                    id="usn" 
-                    name="usn" 
-                    class="form-input" 
+                <input
+                    type="text"
+                    id="usn"
+                    name="usn"
+                    class="form-input"
                     placeholder="e.g., 1AB20CS001"
                     required
                     autofocus
+                    autocomplete="username"
+                    autocapitalize="characters"
                 >
                 <span class="form-help">University Seat Number (must contain both letters and numbers)</span>
                 <span class="form-error" id="usn-error"></span>
@@ -45,13 +222,14 @@
                     <label for="first_name" class="form-label">
                         First Name <span class="required">*</span>
                     </label>
-                    <input 
-                        type="text" 
-                        id="first_name" 
-                        name="first_name" 
-                        class="form-input" 
+                    <input
+                        type="text"
+                        id="first_name"
+                        name="first_name"
+                        class="form-input"
                         placeholder="John"
                         required
+                        autocomplete="given-name"
                     >
                     <span class="form-error" id="first_name-error"></span>
                 </div>
@@ -60,13 +238,14 @@
                     <label for="last_name" class="form-label">
                         Last Name <span class="required">*</span>
                     </label>
-                    <input 
-                        type="text" 
-                        id="last_name" 
-                        name="last_name" 
-                        class="form-input" 
+                    <input
+                        type="text"
+                        id="last_name"
+                        name="last_name"
+                        class="form-input"
                         placeholder="Doe"
                         required
+                        autocomplete="family-name"
                     >
                     <span class="form-error" id="last_name-error"></span>
                 </div>
@@ -77,13 +256,14 @@
                 <label for="email" class="form-label">
                     Email <span class="required">*</span>
                 </label>
-                <input 
-                    type="email" 
-                    id="email" 
-                    name="email" 
-                    class="form-input" 
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    class="form-input"
                     placeholder="john.doe@student.edu"
                     required
+                    autocomplete="email"
                 >
                 <span class="form-error" id="email-error"></span>
             </div>
@@ -93,12 +273,13 @@
                 <label for="phone" class="form-label">
                     Phone Number
                 </label>
-                <input 
-                    type="tel" 
-                    id="phone" 
-                    name="phone" 
-                    class="form-input" 
+                <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    class="form-input"
                     placeholder="9876543210"
+                    autocomplete="tel"
                 >
                 <span class="form-error" id="phone-error"></span>
             </div>
@@ -158,11 +339,12 @@
                     <label for="date_of_birth" class="form-label">
                         Date of Birth
                     </label>
-                    <input 
-                        type="date" 
-                        id="date_of_birth" 
-                        name="date_of_birth" 
+                    <input
+                        type="date"
+                        id="date_of_birth"
+                        name="date_of_birth"
                         class="form-input"
+                        autocomplete="bday"
                     >
                 </div>
             </div>
@@ -172,12 +354,13 @@
                 <label for="address" class="form-label">
                     Address
                 </label>
-                <textarea 
-                    id="address" 
-                    name="address" 
-                    class="form-textarea" 
+                <textarea
+                    id="address"
+                    name="address"
+                    class="form-textarea"
                     placeholder="Enter your address"
                     rows="3"
+                    autocomplete="street-address"
                 ></textarea>
             </div>
 
@@ -187,13 +370,14 @@
                     <label for="password" class="form-label">
                         Password <span class="required">*</span>
                     </label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password" 
-                        class="form-input" 
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        class="form-input"
                         placeholder="Minimum 8 characters"
                         required
+                        autocomplete="new-password"
                     >
                     <span class="form-error" id="password-error"></span>
                 </div>
@@ -202,13 +386,14 @@
                     <label for="confirm_password" class="form-label">
                         Confirm Password <span class="required">*</span>
                     </label>
-                    <input 
-                        type="password" 
-                        id="confirm_password" 
-                        name="confirm_password" 
-                        class="form-input" 
+                    <input
+                        type="password"
+                        id="confirm_password"
+                        name="confirm_password"
+                        class="form-input"
                         placeholder="Re-enter password"
                         required
+                        autocomplete="new-password"
                     >
                     <span class="form-error" id="confirm_password-error"></span>
                 </div>
@@ -234,73 +419,100 @@
         // Clear all previous errors
         const errorElements = document.querySelectorAll('.form-error');
         errorElements.forEach(el => el.textContent = '');
-        
+
         const inputs = document.querySelectorAll('.form-input, .form-select');
         inputs.forEach(input => input.classList.remove('error'));
-        
+
         let isValid = true;
-        
+        let firstError = null;
+
         // Validate USN
         const usn = document.getElementById('usn').value.trim();
         const usnRegex = /^(?=.*[A-Za-z])(?=.*[0-9])[A-Za-z0-9]+$/;
         if (!usnRegex.test(usn)) {
             document.getElementById('usn-error').textContent = 'USN must contain both letters and numbers';
             document.getElementById('usn').classList.add('error');
+            if (!firstError) firstError = document.getElementById('usn');
             isValid = false;
         }
-        
+
         // Validate First Name
         const firstName = document.getElementById('first_name').value.trim();
         if (firstName.length < 2) {
             document.getElementById('first_name-error').textContent = 'First name must be at least 2 characters';
             document.getElementById('first_name').classList.add('error');
+            if (!firstError) firstError = document.getElementById('first_name');
             isValid = false;
         }
-        
+
         // Validate Last Name
         const lastName = document.getElementById('last_name').value.trim();
         if (lastName.length < 2) {
             document.getElementById('last_name-error').textContent = 'Last name must be at least 2 characters';
             document.getElementById('last_name').classList.add('error');
+            if (!firstError) firstError = document.getElementById('last_name');
             isValid = false;
         }
-        
+
         // Validate Email
         const email = document.getElementById('email').value.trim();
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             document.getElementById('email-error').textContent = 'Please enter a valid email address';
             document.getElementById('email').classList.add('error');
+            if (!firstError) firstError = document.getElementById('email');
             isValid = false;
         }
-        
+
         // Validate Phone (if provided)
         const phone = document.getElementById('phone').value.trim();
         if (phone && !/^\d{10}$/.test(phone)) {
             document.getElementById('phone-error').textContent = 'Phone number must be 10 digits';
             document.getElementById('phone').classList.add('error');
+            if (!firstError) firstError = document.getElementById('phone');
             isValid = false;
         }
-        
+
         // Validate Password
         const password = document.getElementById('password').value;
         if (password.length < 8) {
             document.getElementById('password-error').textContent = 'Password must be at least 8 characters';
             document.getElementById('password').classList.add('error');
+            if (!firstError) firstError = document.getElementById('password');
             isValid = false;
         }
-        
+
         // Validate Confirm Password
         const confirmPassword = document.getElementById('confirm_password').value;
         if (password !== confirmPassword) {
             document.getElementById('confirm_password-error').textContent = 'Passwords do not match';
             document.getElementById('confirm_password').classList.add('error');
+            if (!firstError) firstError = document.getElementById('confirm_password');
             isValid = false;
         }
-        
+
         if (!isValid) {
             e.preventDefault();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Scroll to first error field
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstError.focus();
+            }
+        }
+    });
+
+    // Remove error styling on input
+    const fields = ['usn', 'first_name', 'last_name', 'email', 'phone', 'password', 'confirm_password'];
+    fields.forEach(field => {
+        const element = document.getElementById(field);
+        if (element) {
+            element.addEventListener('input', function() {
+                this.classList.remove('error');
+                const errorElement = document.getElementById(field + '-error');
+                if (errorElement) {
+                    errorElement.textContent = '';
+                }
+            });
         }
     });
 </script>

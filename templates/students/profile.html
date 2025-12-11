@@ -4,37 +4,191 @@
 
 {% block extra_css %}
 <style>
+    :root {
+        --primary-color: #4f46e5;
+        --gray-900: #1f2937;
+        --gray-700: #374151;
+        --gray-600: #4b5563;
+        --gray-200: #e5e7eb;
+        --white: #ffffff;
+        --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+
     .profile-container {
         max-width: 800px;
-        margin: 2rem auto;
-        padding: 0 2rem;
+        margin: 0 auto;
+        padding: 1rem;
     }
 
     .profile-card {
         background-color: var(--white);
-        border-radius: 0.5rem;
+        border-radius: 8px;
         box-shadow: var(--shadow-lg);
-        padding: 2rem;
+        padding: 1.25rem;
     }
 
     .profile-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
         padding-bottom: 1rem;
         border-bottom: 2px solid var(--gray-200);
     }
 
     .profile-header h1 {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
         color: var(--gray-900);
-        margin: 0;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .profile-header p {
+        color: var(--gray-600);
+        margin: 0 0 1rem 0;
+        font-size: 0.9375rem;
     }
 
     .action-buttons {
         display: flex;
-        gap: 1rem;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--gray-700);
+        margin-bottom: 0.5rem;
+    }
+
+    .required {
+        color: #ef4444;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+        width: 100%;
+        padding: 0.75rem;
+        font-size: 1rem;
+        border: 1px solid var(--gray-200);
+        border-radius: 6px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        font-family: inherit;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    .btn {
+        padding: 0.75rem 1.25rem;
+        border-radius: 6px;
+        font-size: 0.9375rem;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+    }
+
+    .btn-primary {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #4338ca;
+    }
+
+    .btn-secondary {
+        background: var(--gray-600);
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: var(--gray-700);
+    }
+
+    .btn-block {
+        width: 100%;
+    }
+
+    .btn-small {
+        padding: 0.625rem 1rem;
+        font-size: 0.875rem;
+        min-height: 44px;
+    }
+
+    .button-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        margin-top: 2rem;
+    }
+
+    /* Tablet and larger */
+    @media (min-width: 640px) {
+        .profile-container {
+            padding: 1.5rem;
+        }
+
+        .profile-card {
+            padding: 2rem;
+        }
+
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .profile-header p {
+            margin-bottom: 0;
+        }
+
+        .form-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .button-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .profile-header h1 {
+            font-size: 1.75rem;
+        }
+    }
+
+    /* Desktop */
+    @media (min-width: 1024px) {
+        .profile-container {
+            margin: 2rem auto;
+            padding: 2rem;
+        }
     }
 </style>
 {% endblock %}
@@ -45,7 +199,7 @@
         <div class="profile-header">
             <div>
                 <h1>Edit Profile</h1>
-                <p style="color: var(--gray-600); margin: 0;">{{ student.usn }}</p>
+                <p>{{ student.usn }}</p>
             </div>
             <div class="action-buttons">
                 <a href="{% url 'student_change_password' %}" class="btn btn-secondary btn-small">
@@ -63,13 +217,14 @@
                     <label for="first_name" class="form-label">
                         First Name <span class="required">*</span>
                     </label>
-                    <input 
-                        type="text" 
-                        id="first_name" 
-                        name="first_name" 
-                        class="form-input" 
+                    <input
+                        type="text"
+                        id="first_name"
+                        name="first_name"
+                        class="form-input"
                         value="{{ student.first_name }}"
                         required
+                        autocomplete="given-name"
                     >
                 </div>
 
@@ -77,13 +232,14 @@
                     <label for="last_name" class="form-label">
                         Last Name <span class="required">*</span>
                     </label>
-                    <input 
-                        type="text" 
-                        id="last_name" 
-                        name="last_name" 
-                        class="form-input" 
+                    <input
+                        type="text"
+                        id="last_name"
+                        name="last_name"
+                        class="form-input"
                         value="{{ student.last_name }}"
                         required
+                        autocomplete="family-name"
                     >
                 </div>
             </div>
@@ -93,13 +249,14 @@
                 <label for="email" class="form-label">
                     Email <span class="required">*</span>
                 </label>
-                <input 
-                    type="email" 
-                    id="email" 
-                    name="email" 
-                    class="form-input" 
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    class="form-input"
                     value="{{ student.email }}"
                     required
+                    autocomplete="email"
                 >
             </div>
 
@@ -108,12 +265,13 @@
                 <label for="phone" class="form-label">
                     Phone Number
                 </label>
-                <input 
-                    type="tel" 
-                    id="phone" 
-                    name="phone" 
-                    class="form-input" 
+                <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    class="form-input"
                     value="{{ student.phone|default:'' }}"
+                    autocomplete="tel"
                 >
             </div>
 
@@ -165,12 +323,13 @@
                     <label for="date_of_birth" class="form-label">
                         Date of Birth
                     </label>
-                    <input 
-                        type="date" 
-                        id="date_of_birth" 
-                        name="date_of_birth" 
+                    <input
+                        type="date"
+                        id="date_of_birth"
+                        name="date_of_birth"
                         class="form-input"
                         value="{{ student.date_of_birth|date:'Y-m-d'|default:'' }}"
+                        autocomplete="bday"
                     >
                 </div>
             </div>
@@ -180,16 +339,17 @@
                 <label for="address" class="form-label">
                     Address
                 </label>
-                <textarea 
-                    id="address" 
-                    name="address" 
-                    class="form-textarea" 
+                <textarea
+                    id="address"
+                    name="address"
+                    class="form-textarea"
                     rows="3"
+                    autocomplete="street-address"
                 >{{ student.address|default:'' }}</textarea>
             </div>
 
             <!-- Buttons -->
-            <div class="form-row">
+            <div class="button-row">
                 <a href="{% url 'student_dashboard' %}" class="btn btn-secondary btn-block">
                     Cancel
                 </a>

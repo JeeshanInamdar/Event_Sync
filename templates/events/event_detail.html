@@ -4,15 +4,29 @@
 
 {% block extra_css %}
 <style>
+    :root {
+        --primary-color: #4f46e5;
+        --primary-dark: #4338ca;
+        --success-color: #10b981;
+        --danger-color: #ef4444;
+        --gray-900: #1f2937;
+        --gray-700: #374151;
+        --gray-600: #4b5563;
+        --gray-200: #e5e7eb;
+        --gray-50: #f9fafb;
+        --white: #ffffff;
+        --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+
     .event-detail-container {
         max-width: 900px;
         margin: 0 auto;
-        padding: 2rem;
+        padding: 1rem;
     }
 
     .event-detail-card {
         background-color: var(--white);
-        border-radius: 0.5rem;
+        border-radius: 8px;
         box-shadow: var(--shadow-lg);
         overflow: hidden;
     }
@@ -20,56 +34,61 @@
     .event-detail-header {
         background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
         color: var(--white);
-        padding: 2rem;
+        padding: 1.25rem;
     }
 
     .event-type-badge-large {
         display: inline-block;
-        padding: 0.5rem 1rem;
-        border-radius: 0.25rem;
-        font-size: 0.875rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.8125rem;
         font-weight: 600;
         text-transform: uppercase;
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem;
         background-color: rgba(255, 255, 255, 0.2);
     }
 
     .event-detail-header h1 {
-        font-size: 2rem;
+        font-size: 1.5rem;
         margin-bottom: 0.5rem;
+        line-height: 1.3;
     }
 
     .event-club-name {
-        font-size: 1.125rem;
-        opacity: 0.9;
+        font-size: 1rem;
+        opacity: 0.95;
     }
 
     .event-detail-body {
-        padding: 2rem;
+        padding: 1.25rem;
     }
 
     .detail-section {
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
     }
 
     .detail-section h2 {
-        font-size: 1.25rem;
+        font-size: 1.125rem;
         color: var(--gray-900);
         margin-bottom: 1rem;
         border-bottom: 2px solid var(--primary-color);
         padding-bottom: 0.5rem;
+        font-weight: 600;
     }
 
     .detail-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.5rem;
+        grid-template-columns: 1fr;
+        gap: 1rem;
     }
 
     .detail-item {
         display: flex;
-        align-items: start;
-        gap: 1rem;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: var(--gray-50);
+        border-radius: 6px;
     }
 
     .detail-icon {
@@ -83,7 +102,7 @@
     }
 
     .detail-label {
-        font-size: 0.875rem;
+        font-size: 0.8125rem;
         color: var(--gray-600);
         font-weight: 600;
         text-transform: uppercase;
@@ -92,55 +111,59 @@
 
     .detail-value {
         color: var(--gray-900);
-        font-size: 1.125rem;
+        font-size: 1rem;
+        font-weight: 500;
     }
 
     .activity-points-box {
         background-color: #fef3c7;
         border: 2px solid #fbbf24;
-        border-radius: 0.5rem;
-        padding: 1.5rem;
+        border-radius: 8px;
+        padding: 1.25rem;
         text-align: center;
     }
 
     .activity-points-box h3 {
         color: #92400e;
-        font-size: 1.5rem;
+        font-size: 1.375rem;
         margin-bottom: 0.5rem;
+        font-weight: 700;
     }
 
     .activity-points-box p {
         color: #92400e;
         font-size: 0.875rem;
+        margin: 0;
     }
 
     .event-description {
         color: var(--gray-700);
-        line-height: 1.8;
-        font-size: 1rem;
+        line-height: 1.7;
+        font-size: 0.9375rem;
     }
 
     .registration-box {
         background-color: var(--gray-50);
-        padding: 2rem;
+        padding: 1.25rem;
         border-top: 1px solid var(--gray-200);
     }
 
-    .registration-info {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+    .registration-count {
+        font-size: 0.9375rem;
+        color: var(--gray-700);
         margin-bottom: 1rem;
+        text-align: center;
     }
 
-    .registration-count {
-        font-size: 1rem;
-        color: var(--gray-700);
+    .registration-count strong {
+        color: var(--primary-color);
+        font-size: 1.125rem;
     }
 
     .registration-actions {
         display: flex;
-        gap: 1rem;
+        flex-direction: column;
+        gap: 0.75rem;
     }
 
     .already-registered {
@@ -148,24 +171,141 @@
         border: 2px solid var(--success-color);
         color: #065f46;
         padding: 1rem;
-        border-radius: 0.5rem;
+        border-radius: 8px;
         text-align: center;
         font-weight: 600;
+        margin-bottom: 1rem;
     }
 
-    @media (max-width: 768px) {
-        .detail-grid {
-            grid-template-columns: 1fr;
+    .already-registered p {
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: normal;
+    }
+
+    .btn {
+        padding: 0.75rem 1.25rem;
+        border-radius: 6px;
+        font-size: 0.9375rem;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-primary {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+        background: var(--primary-dark);
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .btn-secondary {
+        background: var(--gray-600);
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #4b5563;
+    }
+
+    .btn-danger {
+        background: var(--danger-color);
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background: #dc2626;
+    }
+
+    .btn-block {
+        width: 100%;
+    }
+
+    /* Tablet */
+    @media (min-width: 640px) {
+        .event-detail-container {
+            padding: 1.5rem;
         }
 
-        .registration-info {
-            flex-direction: column;
-            gap: 1rem;
-            align-items: stretch;
+        .event-detail-header {
+            padding: 1.75rem;
+        }
+
+        .event-detail-header h1 {
+            font-size: 1.875rem;
+        }
+
+        .event-club-name {
+            font-size: 1.125rem;
+        }
+
+        .event-detail-body {
+            padding: 1.75rem;
+        }
+
+        .detail-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
+        }
+
+        .registration-box {
+            padding: 1.75rem;
         }
 
         .registration-actions {
-            flex-direction: column;
+            flex-direction: row;
+        }
+    }
+
+    /* Desktop */
+    @media (min-width: 1024px) {
+        .event-detail-container {
+            padding: 2rem;
+        }
+
+        .event-detail-header {
+            padding: 2rem;
+        }
+
+        .event-detail-header h1 {
+            font-size: 2rem;
+        }
+
+        .event-detail-body {
+            padding: 2rem;
+        }
+
+        .detail-section h2 {
+            font-size: 1.25rem;
+        }
+
+        .detail-value {
+            font-size: 1.125rem;
+        }
+
+        .activity-points-box {
+            padding: 1.5rem;
+        }
+
+        .activity-points-box h3 {
+            font-size: 1.5rem;
+        }
+
+        .registration-box {
+            padding: 2rem;
         }
     }
 </style>
@@ -261,26 +401,22 @@
 
         <!-- Registration Box -->
         <div class="registration-box">
-            <div class="registration-info">
-                <div class="registration-count">
-                    <strong>{{ registered_count }}</strong> 
-                    {% if event.max_participants %}
-                        of {{ event.max_participants }}
-                    {% endif %}
-                    students registered
-                </div>
+            <div class="registration-count">
+                <strong>{{ registered_count }}</strong>
+                {% if event.max_participants %}
+                    of {{ event.max_participants }}
+                {% endif %}
+                students registered
             </div>
 
             {% if is_registered %}
                 <div class="already-registered">
                     ✓ You are registered for this event
-                    <p style="margin-top: 0.5rem; font-size: 0.875rem; font-weight: normal;">
-                        Registered on {{ registration.registration_date|date:"F d, Y" }}
-                    </p>
+                    <p>Registered on {{ registration.registration_date|date:"F d, Y" }}</p>
                 </div>
-                
+
                 {% if event.event_status == 'SCHEDULED' %}
-                <form method="POST" action="{% url 'event_cancel_registration' event.event_id %}" style="margin-top: 1rem;">
+                <form method="POST" action="{% url 'event_cancel_registration' event.event_id %}">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-danger btn-block" onclick="return confirm('Are you sure you want to cancel your registration?')">
                         Cancel Registration

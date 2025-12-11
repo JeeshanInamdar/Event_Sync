@@ -4,91 +4,231 @@
 
 {% block extra_css %}
 <style>
+    :root {
+        --primary-color: #4f46e5;
+        --gray-900: #1f2937;
+        --gray-600: #4b5563;
+        --gray-500: #6b7280;
+        --white: #ffffff;
+        --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
     .analytics-container {
         max-width: 1400px;
         margin: 0 auto;
-        padding: 2rem;
+        padding: 1rem;
     }
 
     .analytics-header {
         background: linear-gradient(135deg, #2563eb, #1e40af);
         color: white;
-        padding: 2rem;
-        border-radius: 0.5rem;
-        margin-bottom: 2rem;
+        padding: 1.25rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
     }
 
     .analytics-header h1 {
-        font-size: 2rem;
+        font-size: 1.5rem;
         margin-bottom: 0.5rem;
+    }
+
+    .analytics-header p {
+        font-size: 0.9375rem;
+        opacity: 0.95;
+        margin: 0;
     }
 
     .stats-overview {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
     }
 
     .stat-box {
         background: white;
-        padding: 1.5rem;
-        border-radius: 0.5rem;
+        padding: 1.25rem;
+        border-radius: 8px;
         box-shadow: var(--shadow-md);
         text-align: center;
         border-left: 4px solid var(--primary-color);
     }
 
     .stat-box h3 {
-        font-size: 2.5rem;
+        font-size: 2rem;
         color: var(--primary-color);
         margin-bottom: 0.5rem;
+        font-weight: 700;
     }
 
     .stat-box p {
         color: var(--gray-600);
         font-weight: 500;
         text-transform: uppercase;
-        font-size: 0.875rem;
+        font-size: 0.8125rem;
+        margin: 0;
     }
 
     .chart-section {
         background: white;
-        padding: 2rem;
-        border-radius: 0.5rem;
+        padding: 1.25rem;
+        border-radius: 8px;
         box-shadow: var(--shadow-md);
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
     }
 
     .chart-section h2 {
-        font-size: 1.5rem;
+        font-size: 1.125rem;
         color: var(--gray-900);
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
         padding-bottom: 0.75rem;
         border-bottom: 2px solid var(--primary-color);
+        font-weight: 600;
     }
 
     .chart-image {
         width: 100%;
         height: auto;
-        border-radius: 0.5rem;
+        border-radius: 6px;
+        display: block;
+    }
+
+    .chart-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .chart-wrapper img {
+        min-width: 300px;
+        max-width: 100%;
     }
 
     .no-data {
         text-align: center;
-        padding: 3rem;
+        padding: 2rem 1rem;
         color: var(--gray-500);
+    }
+
+    .no-data h2 {
+        font-size: 1.125rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .no-data p {
+        font-size: 0.9375rem;
+        margin: 0;
     }
 
     .chart-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-        gap: 2rem;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
     }
 
-    @media (max-width: 768px) {
+    .back-button {
+        margin-top: 1.5rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1.25rem;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 0.9375rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-secondary {
+        background: var(--gray-600);
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #4b5563;
+    }
+
+    /* Tablet */
+    @media (min-width: 640px) {
+        .analytics-container {
+            padding: 1.5rem;
+        }
+
+        .analytics-header {
+            padding: 1.75rem;
+        }
+
+        .analytics-header h1 {
+            font-size: 1.875rem;
+        }
+
+        .stats-overview {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .chart-section {
+            padding: 1.75rem;
+        }
+
+        .chart-section h2 {
+            font-size: 1.25rem;
+        }
+    }
+
+    /* Desktop */
+    @media (min-width: 1024px) {
+        .analytics-container {
+            padding: 2rem;
+        }
+
+        .analytics-header {
+            padding: 2rem;
+        }
+
+        .analytics-header h1 {
+            font-size: 2rem;
+        }
+
+        .stats-overview {
+            gap: 1.5rem;
+        }
+
+        .stat-box {
+            padding: 1.5rem;
+        }
+
+        .stat-box h3 {
+            font-size: 2.5rem;
+        }
+
+        .chart-section {
+            padding: 2rem;
+        }
+
+        .chart-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
         .chart-grid {
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        .back-button {
+            margin-top: 2rem;
+        }
+    }
+
+    /* Large Desktop - Allow some charts to be wider */
+    @media (min-width: 1280px) {
+        .chart-grid {
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
         }
     }
 </style>
@@ -110,17 +250,17 @@
         </div>
 
         <div class="stat-box" style="border-left-color: #10b981;">
-            <h3>{{ completed_events }}</h3>
+            <h3 style="color: #10b981;">{{ completed_events }}</h3>
             <p>Completed Events</p>
         </div>
 
         <div class="stat-box" style="border-left-color: #f59e0b;">
-            <h3>{{ total_registrations }}</h3>
+            <h3 style="color: #f59e0b;">{{ total_registrations }}</h3>
             <p>Total Registrations</p>
         </div>
 
         <div class="stat-box" style="border-left-color: #8b5cf6;">
-            <h3>{{ avg_attendance_rate|floatformat:1 }}%</h3>
+            <h3 style="color: #8b5cf6;">{{ avg_attendance_rate|floatformat:1 }}%</h3>
             <p>Avg Attendance Rate</p>
         </div>
     </div>
@@ -129,7 +269,9 @@
     {% if charts.events_timeline %}
     <div class="chart-section">
         <h2>📈 Events Timeline</h2>
-        <img src="data:image/png;base64,{{ charts.events_timeline }}" class="chart-image" alt="Events Timeline">
+        <div class="chart-wrapper">
+            <img src="data:image/png;base64,{{ charts.events_timeline }}" class="chart-image" alt="Events Timeline">
+        </div>
     </div>
     {% endif %}
 
@@ -137,14 +279,18 @@
         {% if charts.event_status %}
         <div class="chart-section">
             <h2>📊 Event Status Distribution</h2>
-            <img src="data:image/png;base64,{{ charts.event_status }}" class="chart-image" alt="Event Status">
+            <div class="chart-wrapper">
+                <img src="data:image/png;base64,{{ charts.event_status }}" class="chart-image" alt="Event Status">
+            </div>
         </div>
         {% endif %}
 
         {% if charts.monthly_events %}
         <div class="chart-section">
             <h2>📅 Monthly Event Count</h2>
-            <img src="data:image/png;base64,{{ charts.monthly_events }}" class="chart-image" alt="Monthly Events">
+            <div class="chart-wrapper">
+                <img src="data:image/png;base64,{{ charts.monthly_events }}" class="chart-image" alt="Monthly Events">
+            </div>
         </div>
         {% endif %}
     </div>
@@ -152,7 +298,9 @@
     {% if charts.attendance_trend %}
     <div class="chart-section">
         <h2>📊 Attendance Rate Trend</h2>
-        <img src="data:image/png;base64,{{ charts.attendance_trend }}" class="chart-image" alt="Attendance Trend">
+        <div class="chart-wrapper">
+            <img src="data:image/png;base64,{{ charts.attendance_trend }}" class="chart-image" alt="Attendance Trend">
+        </div>
     </div>
     {% endif %}
 
@@ -160,14 +308,18 @@
         {% if charts.department_participation %}
         <div class="chart-section">
             <h2>🎓 Department-wise Participation</h2>
-            <img src="data:image/png;base64,{{ charts.department_participation }}" class="chart-image" alt="Department Participation">
+            <div class="chart-wrapper">
+                <img src="data:image/png;base64,{{ charts.department_participation }}" class="chart-image" alt="Department Participation">
+            </div>
         </div>
         {% endif %}
 
         {% if charts.activity_points %}
         <div class="chart-section">
             <h2>⭐ Top Students by Activity Points</h2>
-            <img src="data:image/png;base64,{{ charts.activity_points }}" class="chart-image" alt="Activity Points">
+            <div class="chart-wrapper">
+                <img src="data:image/png;base64,{{ charts.activity_points }}" class="chart-image" alt="Activity Points">
+            </div>
         </div>
         {% endif %}
     </div>
@@ -182,7 +334,7 @@
     {% endif %}
 
     <!-- Back Button -->
-    <div style="margin-top: 2rem;">
+    <div class="back-button">
         <a href="{% url 'club_dashboard' %}" class="btn btn-secondary">
             ← Back to Dashboard
         </a>

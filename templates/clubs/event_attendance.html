@@ -4,112 +4,298 @@
 
 {% block extra_css %}
 <style>
-    .attendance-container {
-        max-width: 1200px;
-        margin: 2rem auto;
-        padding: 0 2rem;
+    /* existing CSS unchanged */
+    :root {
+        --primary-color: #4f46e5;
+        --primary-dark: #4338ca;
+        --success-color: #10b981;
+        --danger-color: #ef4444;
+        --gray-900: #1f2937;
+        --gray-700: #374151;
+        --gray-600: #4b5563;
+        --gray-200: #e5e7eb;
+        --gray-50: #f9fafb;
+        --white: #ffffff;
+        --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
     }
-
+    .attendance-container { max-width: 1200px; margin: 0 auto; padding: 1rem; }
     .event-header {
         background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
         color: var(--white);
-        padding: 2rem;
-        border-radius: 0.5rem;
-        margin-bottom: 2rem;
+        padding: 1.25rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
     }
-
     .event-header h1 {
-        font-size: 2rem;
+        font-size: 1.375rem;
         margin-bottom: 0.5rem;
+        line-height: 1.3;
     }
-
+    .event-header p {
+        font-size: 0.9375rem;
+        opacity: 0.95;
+        margin: 0.25rem 0;
+    }
+    .summary-box {
+        background-color: var(--white);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+    .summary-item {
+        text-align: center;
+        padding: 0.75rem;
+        background: var(--gray-50);
+        border-radius: 6px;
+    }
+    .summary-item h3 {
+        font-size: 1.75rem;
+        color: var(--primary-color);
+        margin-bottom: 0.25rem;
+        font-weight: 700;
+    }
+    .summary-item p {
+        color: var(--gray-600);
+        font-size: 0.8125rem;
+        margin: 0;
+    }
     .attendance-card {
         background-color: var(--white);
-        border-radius: 0.5rem;
+        border-radius: 8px;
         box-shadow: var(--shadow-lg);
-        padding: 2rem;
+        padding: 1.25rem;
     }
-
-    .attendance-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .attendance-table th {
-        background-color: var(--gray-50);
-        padding: 1rem;
-        text-align: left;
+    .attendance-card h2 {
+        font-size: 1.125rem;
+        margin-bottom: 1.25rem;
+        color: var(--gray-900);
         font-weight: 600;
-        color: var(--gray-700);
-        border-bottom: 2px solid var(--gray-200);
     }
-
-    .attendance-table td {
+    /* Search Bar Styles */
+    .search-container {
+        margin-bottom: 1.5rem;
+    }
+    .search-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        border: 2px solid var(--gray-200);
+        border-radius: 6px;
+        transition: border-color 0.2s;
+    }
+    .search-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+    }
+    /* Mobile Card View */
+    .attendance-cards {
+        display: block;
+    }
+    .student-card {
         padding: 1rem;
         border-bottom: 1px solid var(--gray-200);
     }
-
-    .attendance-table tr:hover {
-        background-color: var(--gray-50);
+    .student-card:last-child {
+        border-bottom: none;
     }
-
+    .student-info {
+        margin-bottom: 0.75rem;
+    }
+    .student-info h4 {
+        font-size: 1rem;
+        color: var(--gray-900);
+        margin: 0 0 0.25rem 0;
+        font-weight: 600;
+    }
+    .student-meta {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.8125rem;
+        color: var(--gray-600);
+    }
     .radio-group {
         display: flex;
-        gap: 1.5rem;
+        gap: 0.75rem;
     }
-
     .radio-label {
+        flex: 1;
         display: flex;
         align-items: center;
+        justify-content: center;
         gap: 0.5rem;
         cursor: pointer;
+        padding: 0.75rem;
+        border: 2px solid var(--gray-200);
+        border-radius: 6px;
+        transition: all 0.2s;
+        min-height: 48px;
+    }
+    .radio-label.is-checked {
+        border-color: var(--primary-color);
+        background-color: rgba(79, 70, 229, 0.05);
+    }
+    .radio-label.present.is-checked {
+        border-color: var(--success-color);
+        background-color: rgba(16, 185, 129, 0.05);
+    }
+    .radio-label.absent.is-checked {
+        border-color: var(--danger-color);
+        background-color: rgba(239, 68, 68, 0.05);
+    }
+    /* Fallback for browsers supporting :has() */
+    .radio-label:has(input:checked) {
+        border-color: var(--primary-color);
+        background-color: rgba(79, 70, 229, 0.05);
+    }
+    .radio-label.present:has(input:checked) {
+        border-color: var(--success-color);
+        background-color: rgba(16, 185, 129, 0.05);
+    }
+    .radio-label.absent:has(input:checked) {
+        border-color: var(--danger-color);
+        background-color: rgba(239, 68, 68, 0.05);
+    }
+    .radio-label input[type="radio"] {
+        width: 1.125rem;
+        height: 1.125rem;
+        cursor: pointer;
+        /* Default accent color for dot/fill when checked */
+        accent-color: var(--primary-color);
+    }
+    .radio-label.present input[type="radio"] {
+        accent-color: var(--success-color);
+    }
+    .radio-label.absent input[type="radio"] {
+        accent-color: var(--danger-color);
     }
 
-    .radio-label input[type="radio"] {
-        width: 1.25rem;
-        height: 1.25rem;
-        cursor: pointer;
+    /* 💡 FIX FOR MOBILE DOT VISIBILITY */
+    .attendance-cards .radio-label input[type="radio"]:checked {
+        /* Force the accent color to ensure the dot is visible on mobile */
+        /* This reinforces the checked state visual for the input element itself */
+        background-color: currentColor;
+        box-shadow: inset 0 0 0 4px white; /* Optional: adds a white ring around the dot */
     }
+    /* END FIX */
 
     .status-present {
         color: var(--success-color);
         font-weight: 600;
+        font-size: 0.9375rem;
     }
-
     .status-absent {
         color: var(--danger-color);
         font-weight: 600;
+        font-size: 0.9375rem;
     }
-
-    .summary-box {
-        background-color: var(--gray-50);
-        padding: 1.5rem;
-        border-radius: 0.5rem;
-        margin-bottom: 2rem;
+    .form-actions {
+        margin-top: 1.5rem;
         display: flex;
-        justify-content: space-around;
-        text-align: center;
+        flex-direction: column;
+        gap: 0.75rem;
     }
-
-    .summary-item h3 {
-        font-size: 2rem;
-        color: var(--primary-color);
-        margin-bottom: 0.25rem;
+    .btn {
+        padding: 0.75rem 1.25rem;
+        border-radius: 6px;
+        font-size: 0.9375rem;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
     }
-
-    .summary-item p {
-        color: var(--gray-600);
-        font-size: 0.875rem;
+    .btn-primary {
+        background: var(--primary-color);
+        color: white;
     }
-
-    @media (max-width: 768px) {
+    .btn-primary:hover {
+        background: var(--primary-dark);
+    }
+    .btn-secondary {
+        background: var(--gray-600);
+        color: white;
+    }
+    .btn-secondary:hover {
+        background: #4b5563;
+    }
+    /* Desktop Table View */
+    .attendance-table-container {
+        display: none;
+    }
+    /* Tablet */
+    @media (min-width: 640px) {
+        .attendance-container { padding: 1.5rem; }
+        .event-header { padding: 1.75rem; }
+        .event-header h1 { font-size: 1.75rem; }
+        .summary-box { grid-template-columns: repeat(4, 1fr); }
+        .attendance-card { padding: 1.75rem; }
+        .form-actions { flex-direction: row; }
+        .btn-primary { flex: 1; }
+    }
+    /* Desktop */
+    @media (min-width: 1024px) {
+        .attendance-container { margin: 2rem auto; padding: 2rem; }
+        .event-header { padding: 2rem; }
+        .event-header h1 { font-size: 2rem; }
+        .attendance-card { padding: 2rem; }
+        .attendance-card h2 { font-size: 1.25rem; }
+        /* Show table on desktop */
+        .attendance-cards { display: none; }
+        .attendance-table-container { display: block; overflow-x: auto; }
         .attendance-table {
+            width: 100%;
+            min-width: 800px;
+            border-collapse: collapse;
+        }
+        .attendance-table th {
+            background-color: var(--gray-50);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--gray-700);
+            border-bottom: 2px solid var(--gray-200);
             font-size: 0.875rem;
         }
-
-        .summary-box {
-            flex-direction: column;
-            gap: 1rem;
+        .attendance-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+            font-size: 0.9375rem;
+        }
+        .student-row:hover { background-color: var(--gray-50); }
+        .attendance-table .radio-group { gap: 1.5rem; }
+        .attendance-table .radio-label {
+            border: none;
+            padding: 0;
+            background: none;
+            flex: none;
+            min-height: auto;
+        }
+        /* Fixed desktop highlight */
+        .attendance-table .radio-label.is-checked {
+            border: 2px solid var(--primary-color);
+            background-color: rgba(79, 70, 229, 0.05);
+            padding: 0.75rem;
+        }
+        .attendance-table .radio-label.present.is-checked {
+            border-color: var(--success-color);
+            background-color: rgba(16, 185, 129, 0.05);
+        }
+        .attendance-table .radio-label.absent.is-checked {
+            border-color: var(--danger-color);
+            background-color: rgba(239, 68, 68, 0.05);
+        }
+        .attendance-table .radio-label input[type="radio"] {
+            width: 1.25rem;
+            height: 1.25rem;
         }
     }
 </style>
@@ -117,7 +303,6 @@
 
 {% block content %}
 <div class="attendance-container">
-    <!-- Event Header -->
     <div class="event-header">
         <h1>{{ event.event_name }}</h1>
         <p>{{ event.event_date|date:"F d, Y" }} • {{ event.start_time|time:"g:i A" }}</p>
@@ -126,7 +311,6 @@
         {% endif %}
     </div>
 
-    <!-- Summary -->
     <div class="summary-box">
         <div class="summary-item">
             <h3>{{ attendance_data|length }}</h3>
@@ -146,64 +330,129 @@
         </div>
     </div>
 
-    <!-- Attendance Form -->
     <div class="attendance-card">
-        <h2 style="margin-bottom: 1.5rem;">Mark Attendance</h2>
+        <h2>Mark Attendance</h2>
 
         <form method="POST" action="{% url 'event_attendance' event.event_id %}" id="attendanceForm">
             {% csrf_token %}
 
-            <table class="attendance-table">
-                <thead>
-                    <tr>
-                        <th>USN</th>
-                        <th>Student Name</th>
-                        <th>Department</th>
-                        <th>Attendance</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for data in attendance_data %}
-                    <tr>
-                        <td><strong>{{ data.student.usn }}</strong></td>
-                        <td>{{ data.student.get_full_name }}</td>
-                        <td>{{ data.student.department }}</td>
-                        <td>
-                            <div class="radio-group">
-                                <label class="radio-label">
-                                    <input 
-                                        type="radio" 
-                                        name="attendance_{{ data.student.student_id }}" 
-                                        value="PRESENT"
-                                        {% if data.attendance and data.attendance.attendance_status == 'PRESENT' %}checked{% endif %}
-                                        onchange="updateCounts()"
-                                    >
-                                    <span class="status-present">Present</span>
-                                </label>
-                                <label class="radio-label">
-                                    <input 
-                                        type="radio" 
-                                        name="attendance_{{ data.student.student_id }}" 
-                                        value="ABSENT"
-                                        {% if data.attendance and data.attendance.attendance_status == 'ABSENT' %}checked{% endif %}
-                                        onchange="updateCounts()"
-                                    >
-                                    <span class="status-absent">Absent</span>
-                                </label>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="search-container">
+                <input
+                    type="text"
+                    id="searchInput"
+                    class="search-input"
+                    placeholder="Search by USN, Name, or Department..."
+                    onkeyup="filterAttendance()"
+                >
+            </div>
 
-            <div style="margin-top: 2rem; display: flex; gap: 1rem;">
-                <a href="{% url 'club_dashboard' %}" class="btn btn-secondary">
-                    Back to Dashboard
-                </a>
-                <button type="submit" class="btn btn-primary" style="flex: 1;">
-                    Save Attendance
-                </button>
+            <div id="attendanceListContainer">
+
+                <div class="attendance-cards">
+                    {% for data in attendance_data %}
+                    <div
+                        class="student-card"
+                        data-search-term="{{ data.student.usn|lower }} {{ data.student.get_full_name|lower }} {{ data.student.department|lower }}"
+                    >
+                        <div class="student-info">
+                            <h4>{{ data.student.get_full_name }}</h4>
+                            <div class="student-meta">
+                                <span><strong>USN:</strong> {{ data.student.usn }}</span>
+                                <span><strong>Dept:</strong> {{ data.student.department }}</span>
+                            </div>
+                        </div>
+                        <div class="radio-group">
+                            <label for="attendance_{{ data.student.student_id }}_present" class="radio-label present
+                                {% if data.attendance and data.attendance.attendance_status == 'PRESENT' %}is-checked{% endif %}">
+                                <input
+                                    id="attendance_{{ data.student.student_id }}_present"
+                                    type="radio"
+                                    name="attendance_{{ data.student.student_id }}"
+                                    value="PRESENT"
+                                    class="attendance-radio"
+                                    data-student="{{ data.student.student_id }}"
+                                    {% if data.attendance and data.attendance.attendance_status == 'PRESENT' %}checked{% endif %}
+                                >
+                                <span class="status-present">Present</span>
+                            </label>
+                            <label for="attendance_{{ data.student.student_id }}_absent" class="radio-label absent
+                                {% if data.attendance and data.attendance.attendance_status == 'ABSENT' %}is-checked{% endif %}">
+                                <input
+                                    id="attendance_{{ data.student.student_id }}_absent"
+                                    type="radio"
+                                    name="attendance_{{ data.student.student_id }}"
+                                    value="ABSENT"
+                                    class="attendance-radio"
+                                    data-student="{{ data.student.student_id }}"
+                                    {% if data.attendance and data.attendance.attendance_status == 'ABSENT' %}checked{% endif %}
+                                >
+                                <span class="status-absent">Absent</span>
+                            </label>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="attendance-table-container">
+                    <table class="attendance-table">
+                        <thead>
+                            <tr>
+                                <th>USN</th>
+                                <th>Student Name</th>
+                                <th>Department</th>
+                                <th>Attendance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for data in attendance_data %}
+                            <tr
+                                class="student-row"
+                                data-search-term="{{ data.student.usn|lower }} {{ data.student.get_full_name|lower }} {{ data.student.department|lower }}"
+                            >
+                                <td><strong>{{ data.student.usn }}</strong></td>
+                                <td>{{ data.student.get_full_name }}</td>
+                                <td>{{ data.student.department }}</td>
+                                <td>
+                                    <div class="radio-group">
+                                        <label for="table_attendance_{{ data.student.student_id }}_present" class="radio-label present
+                                            {% if data.attendance and data.attendance.attendance_status == 'PRESENT' %}is-checked{% endif %}">
+                                            <input
+                                                id="table_attendance_{{ data.student.student_id }}_present"
+                                                type="radio"
+                                                name="attendance_{{ data.student.student_id }}"
+                                                value="PRESENT"
+                                                class="attendance-radio"
+                                                data-student="{{ data.student.student_id }}"
+                                                {% if data.attendance and data.attendance.attendance_status == 'PRESENT' %}checked{% endif %}
+                                            >
+                                            <span class="status-present">Present</span>
+                                        </label>
+                                        <label for="table_attendance_{{ data.student.student_id }}_absent" class="radio-label absent
+                                            {% if data.attendance and data.attendance.attendance_status == 'ABSENT' %}is-checked{% endif %}">
+                                            <input
+                                                id="table_attendance_{{ data.student.student_id }}_absent"
+                                                type="radio"
+                                                name="attendance_{{ data.student.student_id }}"
+                                                value="ABSENT"
+                                                class="attendance-radio"
+                                                data-student="{{ data.student.student_id }}"
+                                                {% if data.attendance and data.attendance.attendance_status == 'ABSENT' %}checked{% endif %}
+                                            >
+                                            <span class="status-absent">Absent</span>
+                                        </label>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+                <a href="{% url 'club_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+                <button type="submit" class="btn btn-primary">Save Attendance</button>
             </div>
         </form>
     </div>
@@ -212,27 +461,109 @@
 
 {% block extra_js %}
 <script>
-    function updateCounts() {
-        const radios = document.querySelectorAll('input[type="radio"]:checked');
-        let present = 0;
-        let absent = 0;
-        
-        radios.forEach(radio => {
-            if (radio.value === 'PRESENT') present++;
-            if (radio.value === 'ABSENT') absent++;
+    // FIX 1: Search function defined globally for onkeyup attribute to work.
+    function filterAttendance() {
+        const filterValue = document.getElementById('searchInput').value.toLowerCase();
+
+        // Filter mobile cards
+        document.querySelectorAll('.student-card').forEach(card => {
+            const searchTerm = card.getAttribute('data-search-term');
+            if (searchTerm.includes(filterValue)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
         });
-        
-        const total = {{ attendance_data|length }};
-        const unmarked = total - present - absent;
-        
-        document.getElementById('presentCount').textContent = present;
-        document.getElementById('absentCount').textContent = absent;
-        document.getElementById('unmarkedCount').textContent = unmarked;
+
+        // Filter desktop table rows
+        document.querySelectorAll('.student-row').forEach(row => {
+            const searchTerm = row.getAttribute('data-search-term');
+            if (searchTerm.includes(filterValue)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
     }
 
-    // Initial count
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', () => {
+        // Sync radio states and UI highlighting for a given radio button in the group
+        function syncRadios(radio) {
+            const studentId = radio.dataset.student;
+            const radios = document.querySelectorAll(`input[name="attendance_${studentId}"]`);
+
+            radios.forEach(r => {
+                // Ensure all radios for the student are checked/unchecked together
+                if (r.value === radio.value) {
+                    r.checked = true;
+                } else {
+                    r.checked = false;
+                }
+
+                // Toggle the visual class on the parent label
+                const label = r.closest('.radio-label');
+                if (label) label.classList.toggle('is-checked', r.checked);
+            });
+        }
+
+        // Apply .is-checked class on all pre-checked radios for visual update
+        function applyCheckedClass() {
+            document.querySelectorAll('.attendance-radio').forEach(radio => {
+                const label = radio.closest('.radio-label');
+                if (radio.checked && label) {
+                    label.classList.add('is-checked');
+                } else if (label) {
+                    label.classList.remove('is-checked');
+                }
+            });
+        }
+
+        // Update counts of present, absent, and unmarked
+        function updateCounts() {
+            const counted = new Set();
+            let present = 0, absent = 0;
+
+            // We iterate over *all* radios, but only check the ones that are checked and use a Set to avoid double counting students (since they appear twice: once in card, once in table)
+            document.querySelectorAll('.attendance-radio:checked').forEach(radio => {
+                const id = radio.dataset.student;
+
+                if (!counted.has(id)) {
+                    if (radio.value === 'PRESENT') present++;
+                    else if (radio.value === 'ABSENT') absent++;
+                    counted.add(id);
+                }
+            });
+
+            const total = parseInt("{{ attendance_data|length }}", 10);
+            document.getElementById('presentCount').textContent = present;
+            document.getElementById('absentCount').textContent = absent;
+            document.getElementById('unmarkedCount').textContent = total - present - absent;
+        }
+
+        // On change for any radio button, sync group and update UI
+        function onRadioChange(event) {
+            const radio = event.target;
+            if (radio.classList.contains('attendance-radio')) {
+                syncRadios(radio);
+                updateCounts();
+            }
+        }
+
+        const attendanceListContainer = document.getElementById('attendanceListContainer');
+        attendanceListContainer.addEventListener('change', onRadioChange);
+
+        // 1. Initialize UI on page load for already checked radios
+        applyCheckedClass();
+
+        // 2. Sync radios for checked inputs to normalize state (Crucial for mobile/desktop sync)
+        // This makes sure if the server rendered one checked, the other is checked too.
+        document.querySelectorAll('.attendance-radio:checked').forEach(syncRadios);
+
+        // 3. Update counts based on initial state
         updateCounts();
+
+        // 4. Initial filter call (in case the search field has pre-filled content)
+        filterAttendance();
     });
 </script>
 {% endblock %}

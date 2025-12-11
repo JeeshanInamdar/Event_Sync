@@ -25,6 +25,7 @@
                     placeholder="Enter your USN (e.g., 1AB20CS001)"
                     required
                     autofocus
+                    autocomplete="username"
                 >
                 <span class="form-error" id="usn-error"></span>
             </div>
@@ -33,13 +34,14 @@
                 <label for="password" class="form-label">
                     Password <span class="required">*</span>
                 </label>
-                <input 
-                    type="password" 
-                    id="password" 
-                    name="password" 
-                    class="form-input" 
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    class="form-input"
                     placeholder="Enter your password"
                     required
+                    autocomplete="current-password"
                 >
                 <span class="form-error" id="password-error"></span>
             </div>
@@ -56,6 +58,146 @@
         </div>
     </div>
 </div>
+
+<style>
+/* Simple Mobile-Comfortable Styles */
+.auth-container {
+    min-height: calc(100vh - 120px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.auth-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 450px;
+    padding: 1.5rem;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-header h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.auth-header p {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.required {
+    color: #ef4444;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    transition: border-color 0.2s;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.form-input.error {
+    border-color: #ef4444;
+}
+
+.form-error {
+    display: block;
+    font-size: 0.875rem;
+    color: #ef4444;
+    margin-top: 0.375rem;
+    min-height: 1.25rem;
+}
+
+.btn {
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 0.75rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    min-height: 48px;
+}
+
+.btn-primary {
+    background: #4f46e5;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #4338ca;
+}
+
+.btn-primary:active {
+    background: #3730a3;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.auth-footer p {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.auth-footer a {
+    color: #4f46e5;
+    text-decoration: none;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 1.25rem;
+    }
+
+    .auth-header h1 {
+        font-size: 1.375rem;
+    }
+}
+</style>
 {% endblock %}
 
 {% block extra_js %}
@@ -64,13 +206,13 @@
         // Clear previous errors
         document.getElementById('usn-error').textContent = '';
         document.getElementById('password-error').textContent = '';
-        
+
         let isValid = true;
-        
+
         // Validate USN
         const usn = document.getElementById('usn').value.trim();
         const usnRegex = /^(?=.*[A-Za-z])(?=.*[0-9])[A-Za-z0-9]+$/;
-        
+
         if (!usn) {
             document.getElementById('usn-error').textContent = 'USN is required';
             document.getElementById('usn').classList.add('error');
@@ -82,10 +224,10 @@
         } else {
             document.getElementById('usn').classList.remove('error');
         }
-        
+
         // Validate Password
         const password = document.getElementById('password').value;
-        
+
         if (!password) {
             document.getElementById('password-error').textContent = 'Password is required';
             document.getElementById('password').classList.add('error');
@@ -97,10 +239,18 @@
         } else {
             document.getElementById('password').classList.remove('error');
         }
-        
+
         if (!isValid) {
             e.preventDefault();
         }
+    });
+
+    // Remove error on input
+    ['usn', 'password'].forEach(id => {
+        document.getElementById(id).addEventListener('input', function() {
+            this.classList.remove('error');
+            document.getElementById(id + '-error').textContent = '';
+        });
     });
 </script>
 {% endblock %}

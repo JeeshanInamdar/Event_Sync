@@ -4,171 +4,118 @@
 
 {% block extra_css %}
 <style>
-
-    /* Floating Button */
-    .cronoz-floating-btn {
-        position: fixed;
-        bottom: 25px;
-        right: 25px;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white;
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        font-size: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: grab;
-        z-index: 9999;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.3);
-        transition: transform 0.2s ease;
-        user-select: none;
-    }
-
-    .cronoz-floating-btn:active {
-        cursor: grabbing;
-        transform: scale(0.95);
-    }
-
-    /* Popup Overlay */
-    .cronoz-overlay {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.45);
-        backdrop-filter: blur(4px);
-        z-index: 999;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    /* Popup Panel */
-    .cronoz-popup {
-        position: fixed;
-        bottom: -100%;
-        right: 20px;
-        width: 360px;
-        height: 60%;
-        background: white;
-        border-radius: 18px;
-        box-shadow: 0 15px 40px rgba(0,0,0,0.25);
-        z-index: 1000;
-        transition: all 0.4s cubic-bezier(.25,.8,.25,1);
-        display: flex;
-        flex-direction: column;
-    }
-
-    .cronoz-popup.show {
-        bottom: 90px;
-    }
-
-    /* Popup Header */
-    .cronoz-popup-header {
-        padding: 15px 18px;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white;
-        font-weight: 600;
-        font-size: 18px;
-        display: flex;
-        justify-content: space-between;
-        border-radius: 18px 18px 0 0;
-    }
-
-    .close-btn {
-        background: none;
-        border: none;
-        font-size: 24px;
-        color: white;
-        cursor: pointer;
-    }
-
-    /* Popup Content */
-    .cronoz-popup-content {
-        padding: 15px;
-        overflow-y: auto;
-        flex: 1;
-        animation: fadeIn 0.4s ease;
-    }
-
-    .loading-text {
-        text-align: center;
-        margin-top: 40px;
-        opacity: 0.6;
-    }
-
-    /* Suggestions Box */
-    .cronoz-suggestion-card {
-        background: #f9f9ff;
-        padding: 15px;
-        border-radius: 12px;
-        margin-bottom: 12px;
-        border-left: 4px solid #667eea;
-        line-height: 1.6;
-    }
-
-    .cronoz-suggestion-card h4 {
-        margin-top: 0;
-        color: #667eea;
-        font-size: 1rem;
-    }
-
-    .cronoz-suggestion-card strong {
-        font-weight: 600;
-        color: #333;
-    }
-
-    .cronoz-suggestion-card em {
-        font-style: italic;
-        color: #555;
-    }
-
-    @media (max-width: 500px) {
-        .cronoz-popup {
-            width: 94%;
-            right: 3%;
-            height: 70%;
-        }
+    :root {
+        --primary-color: #4f46e5;
+        --gray-900: #1f2937;
+        --gray-700: #374151;
+        --gray-600: #4b5563;
+        --gray-200: #e5e7eb;
+        --white: #ffffff;
+        --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
     }
 
     .dashboard-container {
         max-width: 1200px;
         margin: 0 auto;
-        padding: 2rem;
+        padding: 1rem;
     }
 
     .dashboard-header {
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
     }
 
     .dashboard-header h1 {
-        font-size: 2rem;
+        font-size: 1.5rem;
         color: var(--gray-900);
         margin-bottom: 0.5rem;
     }
 
     .dashboard-header p {
         color: var(--gray-600);
+        font-size: 0.9375rem;
     }
 
+    .header-actions {
+        margin-top: 1rem;
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 0.625rem 1rem;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 0.9375rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-primary {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #4338ca;
+    }
+
+    .btn-success {
+        background: #10b981;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background: #059669;
+    }
+
+    /* Alert Box */
+    .alert-box {
+        background-color: #fef3c7;
+        border-left: 4px solid #f59e0b;
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-box.danger {
+        background-color: #fee2e2;
+        border-left-color: #ef4444;
+    }
+
+    .alert-box strong {
+        display: block;
+        margin-bottom: 0.25rem;
+        color: var(--gray-900);
+        font-size: 0.9375rem;
+    }
+
+    .alert-box p {
+        margin: 0;
+        font-size: 0.875rem;
+        line-height: 1.5;
+    }
+
+    /* Stats Grid */
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
     }
 
     .stat-card {
         background-color: var(--white);
-        padding: 1.5rem;
-        border-radius: 0.5rem;
+        padding: 1.25rem;
+        border-radius: 8px;
         box-shadow: var(--shadow-md);
-        transition: all 0.3s ease;
-    }
-
-    .stat-card:hover {
-        box-shadow: var(--shadow-lg);
-        transform: translateY(-2px);
     }
 
     .stat-card h3 {
@@ -180,23 +127,18 @@
     }
 
     .stat-card p {
-        font-size: 2rem;
+        font-size: 1.75rem;
         font-weight: 700;
         color: var(--primary-color);
+        margin: 0;
     }
 
-    /* Simplified Social Score Card (matches stat-card style) */
+    /* Social Score Card */
     .social-score-card {
         background-color: var(--white);
-        padding: 1.5rem;
-        border-radius: 0.5rem;
+        padding: 1.25rem;
+        border-radius: 8px;
         box-shadow: var(--shadow-md);
-        transition: all 0.3s ease;
-    }
-
-    .social-score-card:hover {
-        box-shadow: var(--shadow-lg);
-        transform: translateY(-2px);
     }
 
     .social-score-card h3 {
@@ -210,12 +152,12 @@
     .score-display {
         display: flex;
         align-items: center;
-        gap: 1.5rem;
+        gap: 1.25rem;
     }
 
     .score-circle {
-        width: 90px;
-        height: 90px;
+        width: 80px;
+        height: 80px;
         border-radius: 50%;
         background: conic-gradient(
             var(--primary-color) calc(var(--score-percent) * 1%),
@@ -224,17 +166,15 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--gray-900);
         position: relative;
+        flex-shrink: 0;
     }
 
     .score-circle::before {
         content: '';
         position: absolute;
-        width: 70px;
-        height: 70px;
+        width: 64px;
+        height: 64px;
         background: white;
         border-radius: 50%;
     }
@@ -242,6 +182,9 @@
     .score-value {
         position: relative;
         z-index: 1;
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--gray-900);
     }
 
     .score-info {
@@ -255,7 +198,7 @@
     }
 
     .score-message {
-        font-size: 0.75rem;
+        font-size: 0.8125rem;
         color: var(--gray-600);
         line-height: 1.4;
     }
@@ -264,18 +207,19 @@
     .status-good { color: #f59e0b; }
     .status-needs-improvement { color: #ef4444; }
 
+    /* Profile Info Card */
     .info-card {
         background-color: var(--white);
-        padding: 2rem;
-        border-radius: 0.5rem;
+        padding: 1.25rem;
+        border-radius: 8px;
         box-shadow: var(--shadow-md);
-        margin-top: 2rem;
+        margin-top: 1.5rem;
     }
 
     .info-card h2 {
-        font-size: 1.5rem;
+        font-size: 1.25rem;
         color: var(--gray-900);
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
     }
 
     .info-row {
@@ -283,6 +227,7 @@
         justify-content: space-between;
         padding: 0.75rem 0;
         border-bottom: 1px solid var(--gray-200);
+        gap: 1rem;
     }
 
     .info-row:last-child {
@@ -292,46 +237,205 @@
     .info-label {
         font-weight: 600;
         color: var(--gray-700);
+        font-size: 0.875rem;
     }
 
     .info-value {
         color: var(--gray-600);
+        font-size: 0.875rem;
+        text-align: right;
+        word-break: break-word;
     }
 
-    /* Alert Box */
-    .alert-box {
-        background-color: #fef3c7;
-        border-left: 4px solid #f59e0b;
-        padding: 1rem 1.5rem;
-        border-radius: 0.5rem;
-        margin-bottom: 2rem;
-        animation: slideIn 0.5s ease;
+    /* Floating CRONOZ Button */
+    .cronoz-floating-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 999;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        transition: transform 0.2s ease;
+        user-select: none;
+        border: none;
     }
 
-    @keyframes slideIn {
-        from { transform: translateX(-20px); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
+    .cronoz-floating-btn:active {
+        transform: scale(0.95);
     }
 
-    .alert-box.danger {
-        background-color: #fee2e2;
-        border-left-color: #ef4444;
+    /* Popup Overlay */
+    .cronoz-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 998;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        cursor: pointer;
     }
 
-    .alert-box strong {
-        display: block;
-        margin-bottom: 0.25rem;
-        color: var(--gray-900);
+    .cronoz-overlay.show {
+        opacity: 1;
     }
 
-    @media (max-width: 768px) {
+    /* Popup Panel */
+    .cronoz-popup {
+        position: fixed;
+        bottom: -100%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% - 2rem);
+        max-width: 500px;
+        height: 70vh;
+        max-height: 600px;
+        background: white;
+        border-radius: 12px 12px 0 0;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.25);
+        z-index: 999;
+        transition: bottom 0.3s ease, transform 0.3s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .cronoz-popup.show {
+        bottom: 0;
+    }
+
+    .cronoz-popup-header {
+        padding: 1rem;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        font-weight: 600;
+        font-size: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 12px 12px 0 0;
+        flex-shrink: 0;
+    }
+
+    .close-btn {
+        background: none;
+        border: none;
+        font-size: 28px;
+        color: white;
+        cursor: pointer;
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        transition: opacity 0.2s;
+    }
+
+    .close-btn:hover {
+        opacity: 0.8;
+    }
+
+    .cronoz-popup-content {
+        padding: 1rem;
+        overflow-y: auto;
+        flex: 1;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .loading-text {
+        text-align: center;
+        margin-top: 2rem;
+        color: var(--gray-600);
+        font-size: 0.9375rem;
+    }
+
+    .cronoz-suggestion-card {
+        background: #f9f9ff;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        border-left: 4px solid #667eea;
+        line-height: 1.6;
+    }
+
+    .cronoz-suggestion-card h4 {
+        margin: 0 0 0.5rem 0;
+        color: #667eea;
+        font-size: 0.9375rem;
+    }
+
+    .cronoz-suggestion-card p {
+        margin: 0;
+        font-size: 0.875rem;
+        color: #333;
+    }
+
+    .cronoz-suggestion-card strong {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .cronoz-suggestion-card em {
+        font-style: italic;
+        color: #555;
+    }
+
+    /* Tablet */
+    @media (min-width: 640px) {
         .stats-grid {
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(2, 1fr);
         }
 
-        .score-display {
-            flex-direction: column;
-            text-align: center;
+        .dashboard-header h1 {
+            font-size: 1.875rem;
+        }
+
+        .info-card {
+            padding: 1.5rem;
+        }
+    }
+
+    /* Desktop */
+    @media (min-width: 1024px) {
+        .dashboard-container {
+            padding: 2rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+        }
+
+        .stat-card,
+        .social-score-card {
+            padding: 1.5rem;
+        }
+
+        .cronoz-popup {
+            width: 400px;
+            height: 60vh;
+            border-radius: 12px;
+            right: 20px;
+            left: auto;
+            bottom: -100%;
+            transform: none;
+        }
+
+        .cronoz-popup.show {
+            bottom: 90px;
+        }
+
+        .cronoz-popup-header {
+            border-radius: 12px 12px 0 0;
         }
     }
 </style>
@@ -342,32 +446,31 @@
     <div class="dashboard-header">
         <h1>Welcome, {{ student.first_name }}!</h1>
         <p>USN: {{ student.usn }}</p>
-        <div style="margin-top: 1rem; display: flex; gap: 1rem; flex-wrap: wrap;">
-            <a href="{% url 'student_profile' %}" class="btn btn-primary btn-small">
+        <div class="header-actions">
+            <a href="{% url 'student_profile' %}" class="btn btn-primary">
                 ✏️ Edit Profile
             </a>
-            <a href="{% url 'cronoz:chat_interface' %}" class="btn btn-success btn-small">
-            🤖 Ask CRONOZ AI
+            <a href="{% url 'cronoz:chat_interface' %}" class="btn btn-success">
+                🤖 Ask CRONOZ AI
             </a>
         </div>
     </div>
 
-    <!-- Floating CRONOZ AI Button -->
-    <div id="cronozFloatingBtn" class="cronoz-floating-btn">
-        🤖
-    </div>
-
+    <!-- Alert Messages -->
     {% if student.social_score < 98 %}
     <div class="alert-box {% if student.social_score < 90 %}danger{% endif %}">
         <strong>⚠️ Social Score Alert</strong>
+        <p>
         {% if student.social_score < 90 %}
         Your social score is below 90%. You cannot register for activity point events. Please attend non-activity events to improve your score.
         {% else %}
         Your social score is below 98%. You cannot register for activity point events. Attend more non-activity events to reach 98%.
         {% endif %}
+        </p>
     </div>
     {% endif %}
 
+    <!-- Stats Grid -->
     <div class="stats-grid">
         <!-- Social Score Card -->
         <div class="social-score-card" style="--score-percent: {{ student.social_score }}">
@@ -466,11 +569,16 @@
         </div>
     </div>
 
+    <!-- Floating CRONOZ AI Button -->
+    <button id="cronozFloatingBtn" class="cronoz-floating-btn" aria-label="Open CRONOZ AI Assistant">
+        🤖
+    </button>
+
     <!-- CRONOZ AI Popup Panel -->
     <div id="cronozPopup" class="cronoz-popup">
         <div class="cronoz-popup-header">
             <span>🤖 CRONOZ AI Assistant</span>
-            <button id="cronozCloseBtn" class="close-btn">×</button>
+            <button id="cronozCloseBtn" class="close-btn" aria-label="Close">×</button>
         </div>
         <div id="cronozPopupContent" class="cronoz-popup-content">
             <p class="loading-text">Fetching personalized suggestions...</p>
@@ -482,9 +590,7 @@
 </div>
 
 <script>
-/* ============================================================
-   1) Animate the Social Score Circle on Page Load
-============================================================ */
+// Animate Social Score Circle on Page Load
 window.addEventListener("load", function () {
     const circle = document.querySelector(".score-circle");
     if (!circle) return;
@@ -503,99 +609,8 @@ window.addEventListener("load", function () {
     requestAnimationFrame(step);
 });
 
-/* ============================================================
-   2) Floating Button - Click vs Drag Detection
-============================================================ */
+// CRONOZ AI Popup Controls
 const btn = document.getElementById("cronozFloatingBtn");
-let isDragging = false;
-let startX, startY;
-let hasMoved = false;
-
-btn.addEventListener("mousedown", function (e) {
-    isDragging = true;
-    hasMoved = false;
-    startX = e.clientX;
-    startY = e.clientY;
-
-    const offsetX = e.clientX - btn.offsetLeft;
-    const offsetY = e.clientY - btn.offsetTop;
-
-    function move(e2) {
-        if (!isDragging) return;
-
-        // Calculate distance moved
-        const distX = Math.abs(e2.clientX - startX);
-        const distY = Math.abs(e2.clientY - startY);
-
-        // If moved more than 5px, it's a drag
-        if (distX > 5 || distY > 5) {
-            hasMoved = true;
-            btn.style.left = `${e2.clientX - offsetX}px`;
-            btn.style.top = `${e2.clientY - offsetY}px`;
-            btn.style.right = 'auto';
-            btn.style.bottom = 'auto';
-        }
-    }
-
-    function stop() {
-        isDragging = false;
-
-        // If didn't move, it's a click - open popup
-        if (!hasMoved) {
-            openPopup();
-        }
-
-        window.removeEventListener("mousemove", move);
-        window.removeEventListener("mouseup", stop);
-    }
-
-    window.addEventListener("mousemove", move);
-    window.addEventListener("mouseup", stop);
-});
-
-// Touch support for mobile
-btn.addEventListener("touchstart", function (e) {
-    isDragging = true;
-    hasMoved = false;
-    const touch = e.touches[0];
-    startX = touch.clientX;
-    startY = touch.clientY;
-
-    const offsetX = touch.clientX - btn.offsetLeft;
-    const offsetY = touch.clientY - btn.offsetTop;
-
-    function move(e2) {
-        if (!isDragging) return;
-        const touch = e2.touches[0];
-
-        const distX = Math.abs(touch.clientX - startX);
-        const distY = Math.abs(touch.clientY - startY);
-
-        if (distX > 5 || distY > 5) {
-            hasMoved = true;
-            btn.style.left = `${touch.clientX - offsetX}px`;
-            btn.style.top = `${touch.clientY - offsetY}px`;
-            btn.style.right = 'auto';
-            btn.style.bottom = 'auto';
-        }
-    }
-
-    function stop() {
-        isDragging = false;
-        if (!hasMoved) {
-            openPopup();
-        }
-        window.removeEventListener("touchmove", move);
-        window.removeEventListener("touchend", stop);
-    }
-
-    window.addEventListener("touchmove", move);
-    window.addEventListener("touchend", stop);
-});
-
-/* ============================================================
-   3) Popup Open / Close Animation
-============================================================ */
 const popup = document.getElementById("cronozPopup");
 const overlay = document.getElementById("cronozOverlay");
 const closeBtn = document.getElementById("cronozCloseBtn");
@@ -603,62 +618,57 @@ const closeBtn = document.getElementById("cronozCloseBtn");
 function openPopup() {
     popup.classList.add("show");
     overlay.style.display = "block";
-
+    document.body.style.overflow = "hidden";
     setTimeout(() => {
-        overlay.style.opacity = "1";
+        overlay.classList.add("show");
     }, 10);
-
     loadCronozAISuggestions();
 }
 
-closeBtn.addEventListener("click", closePopup);
-overlay.addEventListener("click", closePopup);
-
 function closePopup() {
     popup.classList.remove("show");
-    overlay.style.opacity = "0";
-
+    overlay.classList.remove("show");
+    document.body.style.overflow = "";
     setTimeout(() => {
         overlay.style.display = "none";
     }, 300);
 }
 
-/* ============================================================
-   4) Convert Markdown-style Text to HTML
-============================================================ */
+btn.addEventListener("click", openPopup);
+closeBtn.addEventListener("click", closePopup);
+
+// Close on overlay click - works for both mobile and desktop
+overlay.addEventListener("click", function(e) {
+    // Close if clicking directly on the overlay (not on the popup content)
+    closePopup();
+});
+
+// Close on Escape key
+document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape" && popup.classList.contains("show")) {
+        closePopup();
+    }
+});
+
+// Format Markdown-style Text to HTML
 function formatMarkdownText(text) {
     if (!text) return text;
-
-    // Convert **bold** to <strong>
     text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-
-    // Convert *italic* to <em>
     text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
-
-    // Convert line breaks
     text = text.replace(/\n/g, '<br>');
-
-    // Convert numbered lists (1. 2. 3.)
     text = text.replace(/^(\d+)\.\s+(.+)$/gm, '<div style="margin-left: 20px;">$1. $2</div>');
-
-    // Convert bullet points (- or *)
     text = text.replace(/^[-*]\s+(.+)$/gm, '<div style="margin-left: 20px;">• $1</div>');
-
     return text;
 }
 
-/* ============================================================
-   5) Load CRONOZ AI Suggestions (Popup)
-============================================================ */
+// Load CRONOZ AI Suggestions
 async function loadCronozAISuggestions() {
     const container = document.getElementById("cronozPopupContent");
-
     container.innerHTML = `<p class="loading-text">Fetching personalized suggestions...</p>`;
 
     try {
         let res = await fetch("/cronoz/api/student/suggestions/");
         let data = await res.json();
-
         let html = "";
 
         if (data.success) {
@@ -683,10 +693,10 @@ async function loadCronozAISuggestions() {
             }
         }
 
-        container.innerHTML = html || `<p>No suggestions available at the moment.</p>`;
+        container.innerHTML = html || `<p class="loading-text">No suggestions available at the moment.</p>`;
     } catch (err) {
         console.error('CRONOZ Error:', err);
-        container.innerHTML = `<p style="color: #ef4444;">Error loading suggestions. Please try again.</p>`;
+        container.innerHTML = `<p style="color: #ef4444; text-align: center;">Error loading suggestions. Please try again.</p>`;
     }
 }
 </script>
